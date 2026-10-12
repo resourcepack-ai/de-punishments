@@ -1,0 +1,46 @@
+name: Verdict
+version: '${version}'
+main: ai.resourcepack.verdict.VerdictPlugin
+api-version: '1.21'
+author: ResourcePack AI
+website: https://resourcepack.ai
+description: Warn, mute, kick, temp-ban and ban, from a dialog panel or plain commands.
+softdepend: [RPEngine]
+# Commands are registered at runtime under the names in config.yml.
+permissions:
+  verdict.staff:
+    description: Every punishment command and the panel.
+    default: op
+    children:
+      verdict.punish: true
+      verdict.warn: true
+      verdict.unwarn: true
+      verdict.mute: true
+      verdict.unmute: true
+      verdict.kick: true
+      verdict.tempban: true
+      verdict.ban: true
+      verdict.ban.ip: true
+      verdict.unban: true
+      verdict.history: true
+      verdict.revoke: true
+      verdict.notify: true
+  verdict.admin:
+    description: /verdict reload, and everything in verdict.staff.
+    default: op
+    children:
+      verdict.staff: true
+  verdict.punish: { description: "/punish, the panel", default: op }
+  verdict.warn: { description: "/warn", default: op }
+  verdict.unwarn: { description: "/unwarn", default: op }
+  verdict.mute: { description: "/mute", default: op }
+  verdict.unmute: { description: "/unmute", default: op }
+  verdict.kick: { description: "/kick", default: op }
+  verdict.tempban: { description: "/tempban", default: op }
+  verdict.ban: { description: "/ban, permanent or with a length", default: op }
+  verdict.ban.ip: { description: "-ip on a ban, which also bans the address", default: op }
+  verdict.unban: { description: "/unban", default: op }
+  verdict.history: { description: "/history", default: op }
+  verdict.revoke: { description: "/verdict revoke, and Revoke in the history dialog", default: op }
+  verdict.notify: { description: "Hear silent punishments and staff-only announcements", default: op }
+  verdict.exempt: { description: "Cannot be punished by players", default: false }

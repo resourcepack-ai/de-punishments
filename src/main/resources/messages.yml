@@ -1,0 +1,138 @@
+# Every word Verdict says. MiniMessage: <red>, <#3670f8>, <bold>, <newline>...
+# https://docs.advntr.dev/minimessage/format.html
+#
+# Placeholders: {target} {actor} {reason} {length} {expires} {id} {count}
+# {type} (Warning, Mute, ...) and anything noted beside a line.
+
+prefix: "<#3670f8>Punish</#3670f8> <dark_gray>»</dark_gray> <gray>"
+permanent: "Permanent"
+never: "never"
+console-name: "Console"
+silent-tag: "<dark_gray>[Silent]</dark_gray> "
+
+types:
+  warn: "Warning"
+  mute: "Mute"
+  tempmute: "Mute"
+  kick: "Kick"
+  ban: "Ban"
+  tempban: "Temp-ban"
+
+# What everyone (or staff, see broadcast: in config.yml) is told.
+broadcast:
+  warn: "<yellow>{target}</yellow> was warned by <white>{actor}</white>: <white>{reason}"
+  mute: "<gold>{target}</gold> was muted by <white>{actor}</white> for <white>{length}</white>: <white>{reason}"
+  kick: "<red>{target}</red> was kicked by <white>{actor}</white>: <white>{reason}"
+  ban: "<dark_red>{target}</dark_red> was banned by <white>{actor}</white> for <white>{length}</white>: <white>{reason}"
+  unmute: "<green>{target}</green> was unmuted by <white>{actor}</white>."
+  unban: "<green>{target}</green> was unbanned by <white>{actor}</white>."
+  unwarn: "<green>{target}</green>'s last warning was removed by <white>{actor}</white>."
+
+# What the punished player is told (when online).
+target:
+  warn: "<yellow>You have been warned:</yellow> <white>{reason}</white> <dark_gray>(warnings: {count})"
+  mute: "<gold>You have been muted for {length}:</gold> <white>{reason}"
+  unmute: "<green>You can talk again."
+
+# Shown when a muted player tries to talk.
+muted: "<red>You are muted for another <white>{remaining}</white>. <gray>Reason: <white>{reason}"
+muted-permanent: "<red>You are permanently muted. <gray>Reason: <white>{reason}"
+
+# The screen a kicked player sees.
+kick-screen: |-
+  <red><bold>You were kicked</bold></red>
+
+  <gray>Reason: <white>{reason}</white>
+  <gray>By: <white>{actor}</white>
+
+# The screen a banned player sees, on the ban and every time they try to join.
+# {remaining} is how long is left.
+ban-screen: |-
+  <dark_red><bold>You are banned from this server</bold></dark_red>
+
+  <gray>Reason: <white>{reason}</white>
+  <gray>By: <white>{actor}</white>
+  <gray>Expires: <white>{expires}</white> <dark_gray>({remaining})</dark_gray>
+
+  <gray>Ban ID <white>#{id}</white>. Think it was a mistake? Appeal with that number.
+ban-screen-permanent: |-
+  <dark_red><bold>You are permanently banned from this server</bold></dark_red>
+
+  <gray>Reason: <white>{reason}</white>
+  <gray>By: <white>{actor}</white>
+
+  <gray>Ban ID <white>#{id}</white>. Think it was a mistake? Appeal with that number.
+
+# Told to the staff member who did it.
+done:
+  warn: "Warned <white>{target}</white> <dark_gray>(#{id}, warnings counting: {count})"
+  mute: "Muted <white>{target}</white> for <white>{length}</white> <dark_gray>(#{id})"
+  kick: "Kicked <white>{target}</white> <dark_gray>(#{id})"
+  ban: "Banned <white>{target}</white> for <white>{length}</white> <dark_gray>(#{id})"
+  unmute: "Unmuted <white>{target}</white>."
+  unban: "Unbanned <white>{target}</white>."
+  unwarn: "Removed <white>{target}</white>'s warning <dark_gray>#{id}</dark_gray>."
+  revoke: "Revoked <white>#{id}</white> <dark_gray>({type} on {target})</dark_gray>."
+
+errors:
+  no-permission: "<red>You don't have permission to do that."
+  usage: "<red>Usage: <white>{usage}"
+  unknown-player: "<red>Nobody called <white>{target}</white> has played here."
+  not-online: "<red>{target} is not online."
+  exempt: "<red>{target} can't be punished."
+  escalation-denied: "<yellow>{target} has reached <white>{count}</white> warnings, which runs <white>/{command}</white>, and you don't have permission for that. Ask somebody who does."
+  local-ip: "<red>{target} connects from <white>{ip}</white>, a local or private address: a proxy or LAN gives it to everyone, so banning it would ban them all. Ban the account instead."
+  self: "<red>You can't punish yourself."
+  not-muted: "<red>{target} is not muted."
+  not-banned: "<red>{target} is not banned."
+  no-warnings: "<red>{target} has no warnings to remove."
+  unknown-id: "<red>There is no punishment #{id}."
+  already-revoked: "<red>#{id} is not in force."
+  reason-required: "<red>Give a reason."
+  capped: "<yellow>That is longer than you may give; it is <white>{length}</white> instead."
+  no-permanent: "<red>You can't ban permanently. Give a length."
+  storage: "<red>The punishment record could not be reached. The console says why."
+  no-dialogs: "<red>The panel needs RP Engine and a 1.21.6+ client. Use the commands: <white>/warn /mute /kick /tempban /ban"
+  already-muted: "<yellow>{target} was already muted; this replaces it."
+  already-banned: "<yellow>{target} was already banned; this replaces it."
+
+# /history in chat (also the fallback when dialogs are unavailable).
+history:
+  header: "<gray>History of <white>{target}</white> <dark_gray>({count} total, {warnings} warnings counting)"
+  line: "<dark_gray>#{id}</dark_gray> <white>{type}</white> <gray>{date}</gray> <dark_gray>·</dark_gray> <white>{reason}</white> <dark_gray>by {actor}{length_part}</dark_gray> {status}"
+  length-part: ", {length}"
+  empty: "<gray>{target} has a clean record."
+  status-active: "<red>● in force"
+  status-expired: "<dark_gray>expired"
+  status-revoked: "<dark_gray>revoked by {by}"
+  status-none: ""
+  # The history dialog. PLAIN text (no MiniMessage): the game draws these.
+  status-active-plain: "in force"
+  status-expired-plain: "expired"
+  status-revoked-plain: "revoked by {by}"
+  status-none-plain: ""
+  by: "by"
+  clean: "Clean record"
+  summary: "{count} on record"
+  page: "Page {page} of {pages}"
+
+# Words the dialogs show. PLAIN text (no MiniMessage): the game draws these
+# into the pictures, in the game's own font.
+panel:
+  online: "Online now"
+  never-joined: "Never joined"
+  last-seen: "Seen {ago} ago"
+  "no": "No"
+  permanently: "Permanently"
+  left: "{left} left"
+confirm:
+  title-tempban: "Temp-ban {target}?"
+  title-ban: "Ban {target}?"
+  line-tempban: "Banned for {length}"
+  line-ban: "Banned permanently"
+  audience-everyone: "Everyone"
+  audience-staff: "Staff only"
+players:
+  nobody: "Nobody else is online"
+
+reloaded: "Reloaded config and messages."

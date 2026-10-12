@@ -1,0 +1,41 @@
+plugins {
+    id 'java'
+}
+
+group = 'ai.resourcepack'
+version = '0.1.15'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 21
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://repo.papermc.io/repository/maven-public/' }
+}
+
+// RP Engine's jar, built beside this project, as every addon here compiles.
+// compileOnly: the server has the engine, and Verdict runs without it
+// (commands only, no panel).
+def engineJar = System.getenv('ENGINE_JAR')
+        ? files(System.getenv('ENGINE_JAR'))
+        : fileTree(dir: '../../rp-engine/build/libs', include: 'rp-engine-*.jar', exclude: '*-sources.jar')
+
+dependencies {
+    compileOnly 'io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT'
+    compileOnly engineJar
+}
+
+processResources {
+    inputs.property('version', project.version)
+    filesMatching('plugin.yml') {
+        expand(version: project.version)
+    }
+}

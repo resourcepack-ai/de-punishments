@@ -1,0 +1,696 @@
+[
+ {
+  "id": "panel",
+  "spec": {
+   "title": "Punish {target}",
+   "contentWidth": 320,
+   "afterAction": "close",
+   "canCloseWithEscape": true,
+   "buttons": [
+    {
+     "id": "players",
+     "label": "Pick another player",
+     "width": 150,
+     "action": "run_command",
+     "value": "punish"
+    }
+   ],
+   "document": {
+    "theme": {
+     "face": "#c6c6c6",
+     "accent": "#d8402f"
+    },
+    "column": [
+     {
+      "row": [
+       {
+        "section": [
+         {
+          "row": [
+           {
+            "icon": "head:{target}",
+            "size": 24,
+            "frame": true
+           },
+           {
+            "column": [
+             {
+              "text": "{target}",
+              "style": "heading"
+             },
+             {
+              "row": [
+               {
+                "icon": "ui:dot-green",
+                "size": 9,
+                "bind": "presence_dot",
+                "states": {
+                 "online": "ui:dot-green",
+                 "offline": "ui:dot-red"
+                }
+               },
+               {
+                "column": [
+                 {
+                  "space": 1
+                 },
+                 {
+                  "text": "{presence}",
+                  "style": "muted"
+                 }
+                ],
+                "gap": 0
+               }
+              ],
+              "gap": 3,
+              "cross": "start"
+             }
+            ],
+            "gap": 2
+           }
+          ],
+          "gap": 5,
+          "cross": "center"
+         },
+         {
+          "pair": [
+           "Warns",
+           "{warnings}"
+          ],
+          "style": "gold",
+          "w": "grow"
+         },
+         {
+          "pair": [
+           "Total",
+           "{total}"
+          ],
+          "style": "body",
+          "w": "grow"
+         },
+         {
+          "pair": [
+           "Muted",
+           "{mute_state}"
+          ],
+          "style": "body",
+          "w": "grow"
+         },
+         {
+          "pair": [
+           "Banned",
+           "{ban_state}"
+          ],
+          "style": "body",
+          "w": "grow"
+         }
+        ],
+        "gap": 4,
+        "h": "grow",
+        "w": 112
+       },
+       {
+        "section": [
+         {
+          "setting": "Reason",
+          "icon": "ui:warning",
+          "control": {
+           "dropdown": "Hacking",
+           "options": [
+            "Hacking",
+            "Spam",
+            "Toxicity",
+            "Griefing",
+            "Advertising",
+            "Ban evasion",
+            "Other"
+           ],
+           "bind": "verdict_reason",
+           "w": 86
+          }
+         },
+         {
+          "setting": "Length",
+          "icon": "ui:hourglass",
+          "control": {
+           "segmented": [
+            "Auto",
+            "1h",
+            "1d",
+            "7d",
+            "Perm"
+           ],
+           "selected": 0,
+           "bind": "verdict_length",
+           "compact": true,
+           "look": "raised"
+          }
+         },
+         {
+          "setting": "Silent",
+          "icon": "ui:eye-off",
+          "control": {
+           "switch": false,
+           "bind": "verdict_silent"
+          }
+         }
+        ],
+        "title": "Punishment",
+        "h": "grow",
+        "w": "grow"
+       }
+      ],
+      "gap": 4,
+      "cross": "start",
+      "w": "grow"
+     },
+     {
+      "row": [
+       {
+        "button": "History",
+        "look": "light",
+        "icon": "ui:scroll",
+        "align": "left",
+        "w": 112,
+        "onClick": {
+         "action": "run_command",
+         "value": "history {target}"
+        }
+       },
+       {
+        "button": "Warn",
+        "look": "light",
+        "icon": "ui:warning",
+        "w": "grow",
+        "onClick": {
+         "action": "run_command",
+         "value": "verdict act warn {target}"
+        }
+       },
+       {
+        "button": "Mute",
+        "look": "light",
+        "icon": "ui:mute",
+        "w": "grow",
+        "onClick": {
+         "action": "run_command",
+         "value": "verdict act mute {target}"
+        }
+       }
+      ],
+      "gap": 4,
+      "w": "grow"
+     },
+     {
+      "row": [
+       {
+        "column": [
+         {
+          "button": "Unmute",
+          "look": "light",
+          "icon": "ui:sound",
+          "align": "left",
+          "w": "grow",
+          "onClick": {
+           "action": "run_command",
+           "value": "verdict act unmute {target}"
+          }
+         }
+        ],
+        "list": "unmute",
+        "rows": 1,
+        "w": 112,
+        "name": "Unmute"
+       },
+       {
+        "button": "Kick",
+        "look": "light",
+        "icon": "ui:exit",
+        "w": "grow",
+        "onClick": {
+         "action": "run_command",
+         "value": "verdict act kick {target}"
+        }
+       },
+       {
+        "button": "Temp-ban",
+        "look": "light",
+        "icon": "ui:clock",
+        "w": "grow",
+        "onClick": {
+         "action": "run_command",
+         "value": "verdict act tempban {target}"
+        }
+       }
+      ],
+      "gap": 4,
+      "w": "grow"
+     },
+     {
+      "row": [
+       {
+        "column": [
+         {
+          "button": "Unban",
+          "look": "light",
+          "icon": "ui:unlock",
+          "align": "left",
+          "w": "grow",
+          "onClick": {
+           "action": "run_command",
+           "value": "verdict act unban {target}"
+          }
+         }
+        ],
+        "list": "unban",
+        "rows": 1,
+        "w": 112,
+        "name": "Unban"
+       },
+       {
+        "button": "Ban",
+        "look": "light",
+        "icon": "ui:hammer",
+        "selected": true,
+        "w": "grow",
+        "onClick": {
+         "action": "run_command",
+         "value": "verdict act ban {target}"
+        }
+       }
+      ],
+      "gap": 4,
+      "w": "grow"
+     }
+    ],
+    "gap": 3
+   },
+   "hideFooter": true
+  }
+ },
+ {
+  "id": "confirm",
+  "spec": {
+   "title": "{confirm_title}",
+   "contentWidth": 230,
+   "afterAction": "close",
+   "canCloseWithEscape": true,
+   "buttons": [
+    {
+     "id": "yes",
+     "label": "Confirm",
+     "width": 110,
+     "action": "run_command",
+     "value": "verdict act confirm $(details)"
+    },
+    {
+     "id": "no",
+     "label": "Back",
+     "width": 110,
+     "action": "run_command",
+     "value": "punish {target}"
+    }
+   ],
+   "document": {
+    "theme": {
+     "face": "#c6c6c6",
+     "accent": "#d8402f"
+    },
+    "column": [
+     {
+      "section": [
+       {
+        "row": [
+         {
+          "icon": "head:{target}",
+          "size": 24,
+          "frame": true
+         },
+         {
+          "column": [
+           {
+            "text": "{target}",
+            "style": "heading"
+           },
+           {
+            "text": "{confirm_line}",
+            "style": "muted"
+           }
+          ],
+          "gap": 2,
+          "w": "grow"
+         }
+        ],
+        "gap": 6,
+        "cross": "center",
+        "w": "grow"
+       },
+       {
+        "divider": true
+       },
+       {
+        "pair": [
+         "Reason",
+         "{confirm_reason}"
+        ],
+        "style": "body",
+        "w": "grow"
+       },
+       {
+        "pair": [
+         "Length",
+         "{confirm_length}"
+        ],
+        "style": "gold",
+        "w": "grow"
+       },
+       {
+        "pair": [
+         "Announced to",
+         "{confirm_audience}"
+        ],
+        "style": "body",
+        "w": "grow"
+       }
+      ],
+      "title": "Are you sure?"
+     }
+    ]
+   },
+   "inputs": [
+    {
+     "kind": "text",
+     "key": "details",
+     "label": "Details (optional)",
+     "width": 220,
+     "maxLength": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "history",
+  "spec": {
+   "title": "History of {target}",
+   "contentWidth": 300,
+   "afterAction": "close",
+   "canCloseWithEscape": true,
+   "buttons": [
+    {
+     "id": "back",
+     "label": "Back to the panel",
+     "width": 150,
+     "action": "run_command",
+     "value": "punish {target}"
+    }
+   ],
+   "document": {
+    "theme": {
+     "face": "#c6c6c6",
+     "accent": "#d8402f"
+    },
+    "column": [
+     {
+      "row": [
+       {
+        "icon": "head:{target}",
+        "size": 16
+       },
+       {
+        "text": "{target}",
+        "style": "heading"
+       },
+       {
+        "text": "{history_summary}",
+        "style": "muted",
+        "align": "right",
+        "w": "grow"
+       }
+      ],
+      "gap": 5,
+      "cross": "center",
+      "w": "grow"
+     },
+     {
+      "column": [
+       {
+        "row": [
+         {
+          "column": [
+           {
+            "text": "{hist_title}",
+            "style": "heading"
+           },
+           {
+            "text": "{hist}",
+            "style": "body"
+           },
+           {
+            "text": "{hist_meta}",
+            "style": "muted"
+           }
+          ],
+          "gap": 1,
+          "w": "grow"
+         },
+         {
+          "button": "Revoke",
+          "look": "light",
+          "w": 52,
+          "onClick": {
+           "action": "run_command",
+           "value": "verdict act revoke {hist_id}"
+          }
+         }
+        ],
+        "surface": "sheet",
+        "pad": 4,
+        "gap": 4,
+        "cross": "center",
+        "w": "grow"
+       }
+      ],
+      "list": "hist",
+      "rows": 12,
+      "gap": 2,
+      "w": "grow"
+     }
+    ],
+    "gap": 4
+   }
+  }
+ },
+ {
+  "id": "players",
+  "spec": {
+   "title": "Punish who?",
+   "contentWidth": 260,
+   "afterAction": "close",
+   "canCloseWithEscape": true,
+   "inputs": [
+    {
+     "kind": "text",
+     "key": "name",
+     "label": "Or type a name",
+     "width": 200,
+     "maxLength": 16
+    }
+   ],
+   "buttons": [
+    {
+     "id": "lookup",
+     "label": "Look up",
+     "width": 100,
+     "action": "run_command",
+     "value": "punish $(name)"
+    },
+    {
+     "id": "close",
+     "label": "Close",
+     "width": 100,
+     "action": "close",
+     "value": ""
+    }
+   ],
+   "document": {
+    "theme": {
+     "face": "#c6c6c6",
+     "accent": "#d8402f"
+    },
+    "column": [
+     {
+      "section": [
+       {
+        "text": "{plist_note}",
+        "style": "muted",
+        "align": "left",
+        "w": "grow"
+       },
+       {
+        "grid": [
+         {
+          "row": [
+           {
+            "icon": "head:{plist}",
+            "size": 16
+           },
+           {
+            "text": "{plist}",
+            "style": "body",
+            "w": "grow"
+           }
+          ],
+          "surface": "sheet",
+          "pad": 3,
+          "gap": 4,
+          "cross": "center",
+          "w": "grow",
+          "onClick": {
+           "action": "run_command",
+           "value": "punish {plist}"
+          }
+         }
+        ],
+        "list": "plist",
+        "rows": 6,
+        "columns": 2,
+        "gap": 2,
+        "w": "grow"
+       }
+      ],
+      "title": "Online now",
+      "gap": 2
+     },
+     {
+      "row": [
+       {
+        "column": [
+         {
+          "button": "Previous",
+          "look": "light",
+          "icon": "ui:arrow-left",
+          "w": 80,
+          "onClick": {
+           "action": "run_command",
+           "value": "verdict act page prev"
+          }
+         }
+        ],
+        "list": "pprev",
+        "rows": 1,
+        "w": 80,
+        "name": "Previous"
+       },
+       {
+        "text": "{plist_page}",
+        "style": "muted",
+        "align": "center",
+        "w": "grow"
+       },
+       {
+        "column": [
+         {
+          "button": "Next",
+          "look": "light",
+          "icon": "ui:arrow-right",
+          "w": 80,
+          "onClick": {
+           "action": "run_command",
+           "value": "verdict act page next"
+          }
+         }
+        ],
+        "list": "pnext",
+        "rows": 1,
+        "w": 80,
+        "name": "Next"
+       }
+      ],
+      "gap": 4,
+      "cross": "center",
+      "w": "grow"
+     }
+    ],
+    "gap": 4
+   }
+  }
+ },
+ {
+  "id": "warned",
+  "spec": {
+   "title": "You have been warned",
+   "contentWidth": 230,
+   "afterAction": "close",
+   "canCloseWithEscape": false,
+   "buttons": [
+    {
+     "id": "ok",
+     "label": "I understand",
+     "width": 150,
+     "action": "run_command",
+     "value": "verdict ack {id}"
+    }
+   ],
+   "document": {
+    "theme": {
+     "face": "#c6c6c6",
+     "accent": "#d8402f"
+    },
+    "column": [
+     {
+      "section": [
+       {
+        "row": [
+         {
+          "icon": "ui:warning",
+          "size": 9
+         },
+         {
+          "text": "{reason}",
+          "style": "heading",
+          "w": "grow"
+         }
+        ],
+        "gap": 4,
+        "cross": "center",
+        "w": "grow"
+       },
+       {
+        "divider": true
+       },
+       {
+        "pair": [
+         "From",
+         "{actor}"
+        ],
+        "style": "body",
+        "w": "grow"
+       },
+       {
+        "pair": [
+         "When",
+         "{date}"
+        ],
+        "style": "body",
+        "w": "grow"
+       },
+       {
+        "pair": [
+         "Warnings",
+         "{count}"
+        ],
+        "style": "gold",
+        "w": "grow"
+       },
+       {
+        "text": "More warnings can lead to a mute or a ban.",
+        "style": "muted"
+       }
+      ],
+      "title": "Warning"
+     }
+    ]
+   }
+  }
+ }
+]
