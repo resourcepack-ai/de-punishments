@@ -27,8 +27,8 @@ public final class PunishmentsPlugin extends JavaPlugin {
     private Dialogs dialogs;
     private ai.resourcepack.common.update.UpdateCheck updates;
 
-    /** The SpigotMC resource the update check asks about; 0 until there is a page to ask. */
-    static final int SPIGOT_RESOURCE = 0;
+    /** The SpigotMC resource the update check asks about (listings/punishments/release.json has it too). */
+    static final int SPIGOT_RESOURCE = 139570;
     /** The first Dialog Engine with what the panel needs: installDrawn and setting. */
     static final String DIALOG_ENGINE_MIN = "0.4.1";
 
