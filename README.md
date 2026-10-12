@@ -19,7 +19,7 @@ dialogs (`drawn/punishments/`), installed into Dialog Engine on first start
 member's own Dialog Engine settings, so they stay where they were left.
 
 Runs on **Spigot or Paper 1.21.7+**, one jar. The panel needs **Dialog Engine
-0.4.0+** and a 1.21.6+ client (1.21.9+ to see players' heads); the commands
+0.4.1+** and a 1.21.6+ client (1.21.9+ to see players' heads); the commands
 need nothing.
 
 ## Commands

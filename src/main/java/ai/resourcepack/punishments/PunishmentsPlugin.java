@@ -30,7 +30,7 @@ public final class PunishmentsPlugin extends JavaPlugin {
     /** The SpigotMC resource the update check asks about; 0 until there is a page to ask. */
     static final int SPIGOT_RESOURCE = 0;
     /** The first Dialog Engine with what the panel needs: installDrawn and setting. */
-    static final String DIALOG_ENGINE_MIN = "0.4.0";
+    static final String DIALOG_ENGINE_MIN = "0.4.1";
 
     @Override
     public void onEnable() {
