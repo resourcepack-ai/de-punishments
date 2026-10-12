@@ -1,6 +1,9 @@
-package ai.resourcepack.verdict;
+package ai.resourcepack.punishments.core;
 
-import io.papermc.paper.event.player.AsyncChatEvent;
+import ai.resourcepack.punishments.PunishmentsPlugin;
+import ai.resourcepack.punishments.api.Punishment;
+
+import ai.resourcepack.punishments.core.platform.Platform;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -8,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerEditBookEvent;
@@ -17,11 +21,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import java.util.Locale;
 
 /** Where punishments bite: logging in, talking, and the commands a mute covers. */
-final class Listeners implements Listener {
+public final class Listeners implements Listener {
 
-    private final VerdictPlugin plugin;
+    private final PunishmentsPlugin plugin;
 
-    Listeners(VerdictPlugin plugin) {
+    public Listeners(PunishmentsPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -30,7 +34,7 @@ final class Listeners implements Listener {
         if (event.getLoginResult() != AsyncPlayerPreLoginEvent.Result.ALLOWED) return;
         String ip = event.getAddress() == null ? null : event.getAddress().getHostAddress();
         String screen = plugin.service().checkLogin(event.getUniqueId(), event.getName(), ip);
-        if (screen != null) event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, Msg.MM.deserialize(screen));
+        if (screen != null) event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, Platform.legacy(Msg.MM.deserialize(screen)));
     }
 
     /** An address ban, held back at pre-login until the player's permissions can be asked. */
@@ -39,8 +43,8 @@ final class Listeners implements Listener {
         Player p = event.getPlayer();
         Punishment ban = plugin.service().addressBanned.remove(p.getUniqueId());
         if (ban == null || p.hasPermission(plugin.settings().exemptPermission)) return;
-        event.joinMessage(null);
-        p.kick(plugin.service().banScreen(ban));
+        event.setJoinMessage(null);
+        Platform.kick(p, plugin.service().banScreen(ban));
     }
 
     @EventHandler
@@ -62,7 +66,8 @@ final class Listeners implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onChat(AsyncChatEvent event) {
+    @SuppressWarnings("deprecation") // Paper's own chat event is not Spigot's; this one is both servers'
+    public void onChat(AsyncPlayerChatEvent event) {
         Punishment mute = plugin.service().muteOf(event.getPlayer().getUniqueId());
         if (mute == null) return;
         event.setCancelled(true);
@@ -80,7 +85,7 @@ final class Listeners implements Listener {
         boolean block = blocked.contains(bare);
         if (!block) {
             // An alias of a blocked command is blocked too: /tell is /msg on most servers.
-            Command c = Bukkit.getCommandMap().getCommand(label);
+            Command c = Platform.commandMap().getCommand(label);
             if (c != null) {
                 block = blocked.contains(c.getName().toLowerCase(Locale.ROOT))
                         || c.getAliases().stream().anyMatch(a -> blocked.contains(a.toLowerCase(Locale.ROOT)));
@@ -111,6 +116,6 @@ final class Listeners implements Listener {
 
     private void tellMuted(Player p, Punishment mute) {
         Msg.Vars v = plugin.service().vars(mute);
-        p.sendMessage(plugin.msg().component(mute.permanent() ? "muted-permanent" : "muted", v));
+        plugin.msg().send(p, mute.permanent() ? "muted-permanent" : "muted", v);
     }
 }

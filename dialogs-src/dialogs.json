@@ -125,7 +125,7 @@
             "Ban evasion",
             "Other"
            ],
-           "bind": "verdict_reason",
+           "bind": "punish_reason",
            "w": 86
           }
          },
@@ -141,7 +141,7 @@
             "Perm"
            ],
            "selected": 0,
-           "bind": "verdict_length",
+           "bind": "punish_length",
            "compact": true,
            "look": "raised"
           }
@@ -151,7 +151,7 @@
           "icon": "ui:eye-off",
           "control": {
            "switch": false,
-           "bind": "verdict_silent"
+           "bind": "punish_silent"
           }
          }
         ],
@@ -184,7 +184,7 @@
         "w": "grow",
         "onClick": {
          "action": "run_command",
-         "value": "verdict act warn {target}"
+         "value": "punishments act warn {target}"
         }
        },
        {
@@ -194,7 +194,7 @@
         "w": "grow",
         "onClick": {
          "action": "run_command",
-         "value": "verdict act mute {target}"
+         "value": "punishments act mute {target}"
         }
        }
       ],
@@ -213,7 +213,7 @@
           "w": "grow",
           "onClick": {
            "action": "run_command",
-           "value": "verdict act unmute {target}"
+           "value": "punishments act unmute {target}"
           }
          }
         ],
@@ -229,7 +229,7 @@
         "w": "grow",
         "onClick": {
          "action": "run_command",
-         "value": "verdict act kick {target}"
+         "value": "punishments act kick {target}"
         }
        },
        {
@@ -239,7 +239,7 @@
         "w": "grow",
         "onClick": {
          "action": "run_command",
-         "value": "verdict act tempban {target}"
+         "value": "punishments act tempban {target}"
         }
        }
       ],
@@ -258,7 +258,7 @@
           "w": "grow",
           "onClick": {
            "action": "run_command",
-           "value": "verdict act unban {target}"
+           "value": "punishments act unban {target}"
           }
          }
         ],
@@ -275,7 +275,7 @@
         "w": "grow",
         "onClick": {
          "action": "run_command",
-         "value": "verdict act ban {target}"
+         "value": "punishments act ban {target}"
         }
        }
       ],
@@ -301,7 +301,7 @@
      "label": "Confirm",
      "width": 110,
      "action": "run_command",
-     "value": "verdict act confirm $(details)"
+     "value": "punishments act confirm $(details)"
     },
     {
      "id": "no",
@@ -459,7 +459,7 @@
           "w": 52,
           "onClick": {
            "action": "run_command",
-           "value": "verdict act revoke {hist_id}"
+           "value": "punishments act revoke {hist_id}"
           }
          }
         ],
@@ -572,7 +572,7 @@
           "w": 80,
           "onClick": {
            "action": "run_command",
-           "value": "verdict act page prev"
+           "value": "punishments act page prev"
           }
          }
         ],
@@ -596,7 +596,7 @@
           "w": 80,
           "onClick": {
            "action": "run_command",
-           "value": "verdict act page next"
+           "value": "punishments act page next"
           }
          }
         ],
@@ -628,7 +628,7 @@
      "label": "I understand",
      "width": 150,
      "action": "run_command",
-     "value": "verdict ack {id}"
+     "value": "punishments ack {id}"
     }
    ],
    "document": {

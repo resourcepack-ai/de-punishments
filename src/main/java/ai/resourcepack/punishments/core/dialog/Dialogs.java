@@ -1,7 +1,11 @@
-package ai.resourcepack.verdict;
+package ai.resourcepack.punishments.core.dialog;
 
-import ai.resourcepack.engine.RPEnginePlugin;
-import ai.resourcepack.verdict.Punishment.Type;
+import ai.resourcepack.punishments.PunishmentsPlugin;
+import ai.resourcepack.punishments.api.Punishment;
+import ai.resourcepack.dialogs.api.DialogEngineAPI;
+import ai.resourcepack.punishments.core.*;
+
+import ai.resourcepack.punishments.api.Punishment.Type;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -17,57 +21,77 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Verdict's screens, drawn in Studio and shipped in the jar as an RP Engine
- * content folder (content/verdict/), and the only class that talks to the
- * engine. Without the engine it is never constructed and Verdict is commands
- * only.
+ * Punishments' screens, drawn in Studio and shipped in the jar as Dialog
+ * Engine drawn dialogs ({@code drawn/punishments/}), and with {@link DialogHook}
+ * the only code that talks to Dialog Engine. Without it this is never
+ * constructed and Punishments is commands only.
  *
- * <p>The pictures are fixed; what changes per player is filled by the engine
- * from the values handed to {@code show}: names, counts, the reason a list row
- * shows. The panel's Reason, Length and Silent controls are the staff
- * member's own RP Engine settings ({@code verdict_reason}, {@code verdict_length},
- * {@code verdict_silent}), which a click sets and the engine keeps; the panel's
- * buttons run {@code /verdict act ...}, which reads them.
+ * <p>The pictures are fixed; what changes per player is filled by Dialog
+ * Engine from the values handed to {@code show}: names, counts, and a list's
+ * rows ({@code hist_3_title}, {@code hist_count}). The panel's Reason, Length
+ * and Silent controls are the staff member's own Dialog Engine settings
+ * ({@code punish_reason}, {@code punish_length}, {@code punish_silent}), which
+ * a click sets and Dialog Engine keeps on the player; the panel's buttons run
+ * {@code /punishments act ...}, which reads them.
  */
-final class Dialogs {
+public final class Dialogs {
 
-    static final String NAMESPACE = "verdict";
+    public static final String NAMESPACE = "punishments";
     static final int HISTORY_ROWS = 12;
     static final int PLAYER_ROWS = 6;
 
     /** A ban waiting on its confirmation, per staff member. */
-    record Pending(Type type, String target, Long length, boolean silent, String reasonInput, boolean temp,
+    public record Pending(Type type, String target, Long length, boolean silent, String reasonInput, boolean temp,
                    String reasonLabel, String lengthLabel) {}
 
     /** Which paged list a staff member last opened, so Next and Previous know what to turn. */
     private record Paging(String list, String target, int page) {}
 
-    private final VerdictPlugin plugin;
-    private final RPEnginePlugin engine;
+    private final PunishmentsPlugin plugin;
+    private final DialogEngineAPI engine;
     private final Map<UUID, Pending> pending = new ConcurrentHashMap<>();
     private final Map<UUID, Paging> paging = new ConcurrentHashMap<>();
     private final Map<UUID, List<Punishment>> histories = new ConcurrentHashMap<>();
 
-    Dialogs(VerdictPlugin plugin, RPEnginePlugin engine) {
+    Dialogs(PunishmentsPlugin plugin, DialogEngineAPI engine) {
         this.plugin = plugin;
         this.engine = engine;
     }
 
-    void forget(Player p) {
+    public void forget(Player p) {
         pending.remove(p.getUniqueId());
         paging.remove(p.getUniqueId());
         histories.remove(p.getUniqueId());
     }
 
     private boolean show(Player viewer, String id, Map<String, String> values) {
-        boolean shown = engine.dialogs().show(viewer, NAMESPACE + ":" + id, values);
+        boolean shown = engine.open(viewer, NAMESPACE + ":" + id, values);
         if (!shown) plugin.msg().tell(viewer, "errors.no-dialogs", null);
         return shown;
     }
 
+    public void close(Player viewer) {
+        engine.close(viewer);
+    }
+
+    /**
+     * A list's rows as the values a drawn dialog reads: {@code name_3} is row
+     * three's main value (its {@code ""} field), {@code name_3_title} another
+     * field, and {@code name_count} how many there are, which is what makes a
+     * row past the end empty rather than unknown.
+     */
+    private static void rows(Map<String, String> values, String list, List<Map<String, String>> rows) {
+        values.put(list + "_count", String.valueOf(rows.size()));
+        for (int i = 0; i < rows.size(); i++) {
+            for (Map.Entry<String, String> field : rows.get(i).entrySet()) {
+                values.put(list + "_" + (i + 1) + (field.getKey().isEmpty() ? "" : "_" + field.getKey()), field.getValue());
+            }
+        }
+    }
+
     // ---------------------------------------------------------------- the panel
 
-    void panel(Player viewer, Service.Summary s) {
+    public void panel(Player viewer, Service.Summary s) {
         paging.remove(viewer.getUniqueId());
         Msg msg = plugin.msg();
         var dates = plugin.settings().dates;
@@ -82,8 +106,8 @@ final class Dialogs {
         v.put("mute_state", state(s.mute()));
         v.put("ban_state", state(s.ban()));
         // Unmute and Unban are one-row lists: shown only when there is something to lift.
-        engine.dialogs().listRows(viewer, "unmute", s.mute().isPresent() ? List.of(Map.of("", "1")) : List.of());
-        engine.dialogs().listRows(viewer, "unban", s.ban().isPresent() ? List.of(Map.of("", "1")) : List.of());
+        rows(v, "unmute", s.mute().isPresent() ? List.of(Map.of("", "1")) : List.of());
+        rows(v, "unban", s.ban().isPresent() ? List.of(Map.of("", "1")) : List.of());
         show(viewer, "panel", v);
     }
 
@@ -107,7 +131,7 @@ final class Dialogs {
     }
 
     /** Opens the panel about somebody again, after an action on it. Behind the action on the database thread, so it shows the result. */
-    void refreshPanel(Player viewer, String target) {
+    public void refreshPanel(Player viewer, String target) {
         plugin.service().summary(viewer, target, summary -> {
             if (viewer.isOnline()) panel(viewer, summary);
         });
@@ -116,8 +140,8 @@ final class Dialogs {
     // ---------------------------------------------------------------- what the controls say
 
     /** The staff member's chosen reason, as a preset key of config.yml. */
-    String reasonKey(Player p) {
-        String raw = engine.dialogs().setting(p, "verdict_reason").orElse("hacking");
+    public String reasonKey(Player p) {
+        String raw = engine.setting(p, "punish_reason").orElse("hacking");
         Map<String, Settings.Reason> reasons = plugin.settings().reasons;
         if (reasons.containsKey(raw)) return raw;
         String dashed = raw.replace('_', '-');
@@ -126,20 +150,20 @@ final class Dialogs {
     }
 
     /** The chosen length: null for the reason's default, PERMANENT, or millis. */
-    Long length(Player p) {
-        String raw = engine.dialogs().setting(p, "verdict_length").orElse("default");
+    public Long length(Player p) {
+        String raw = engine.setting(p, "punish_length").orElse("default");
         if (raw.equals("default") || raw.equals("auto")) return null;
         long ms = Durations.parse(raw);
         return ms == 0 ? null : ms;
     }
 
-    boolean silent(Player p) {
-        return engine.dialogs().setting(p, "verdict_silent").map(v -> v.equals("on")).orElse(false);
+    public boolean silent(Player p) {
+        return engine.setting(p, "punish_silent").map(v -> v.equals("on")).orElse(false);
     }
 
     // ---------------------------------------------------------------- confirmation
 
-    void confirm(Player viewer, Pending p) {
+    public void confirm(Player viewer, Pending p) {
         pending.put(viewer.getUniqueId(), p);
         Msg msg = plugin.msg();
         Map<String, String> v = new LinkedHashMap<>();
@@ -154,13 +178,13 @@ final class Dialogs {
         show(viewer, "confirm", v);
     }
 
-    Pending takePending(Player viewer) {
+    public Pending takePending(Player viewer) {
         return pending.remove(viewer.getUniqueId());
     }
 
     // ---------------------------------------------------------------- history
 
-    void history(Player viewer, Service.Summary s, List<Punishment> rows) {
+    public void history(Player viewer, Service.Summary s, List<Punishment> rows) {
         histories.put(viewer.getUniqueId(), rows);
         Paging old = paging.get(viewer.getUniqueId());
         int page = old != null && old.list().equals("hist") && old.target().equalsIgnoreCase(s.target().name()) ? old.page() : 1;
@@ -191,8 +215,8 @@ final class Dialogs {
                     + (timed ? " · " + vars.map.get("length") : ""));
             list.add(row);
         }
-        engine.dialogs().listRows(viewer, "hist", list);
         Map<String, String> v = new LinkedHashMap<>();
+        rows(v, "hist", list);
         v.put("target", target);
         v.put("history_summary", rows.isEmpty() ? msg.raw("history.clean")
                 : msg.fill(msg.raw("history.summary"), Msg.vars().raw("count", String.valueOf(total)).raw("warnings", String.valueOf(warnings))));
@@ -202,7 +226,7 @@ final class Dialogs {
 
     // ---------------------------------------------------------------- picking somebody
 
-    void players(Player viewer) {
+    public void players(Player viewer) {
         Paging old = paging.get(viewer.getUniqueId());
         int page = old != null && old.list().equals("plist") ? old.page() : 1;
         paging.put(viewer.getUniqueId(), new Paging("plist", "", page));
@@ -221,20 +245,20 @@ final class Dialogs {
         paging.put(viewer.getUniqueId(), new Paging("plist", "", page));
         List<String> names = new ArrayList<>();
         for (Player p : online.subList((page - 1) * PLAYER_ROWS, Math.min(online.size(), page * PLAYER_ROWS))) names.add(p.getName());
-        engine.dialogs().list(viewer, "plist", names);
         Msg msg = plugin.msg();
         Map<String, String> v = new LinkedHashMap<>();
+        rows(v, "plist", names.stream().map(n -> Map.of("", n)).toList());
         v.put("plist_note", online.isEmpty() ? msg.raw("players.nobody") : "");
         // Paging only when there is more than one page: Previous and Next are one-row lists.
         v.put("plist_page", pages <= 1 ? ""
                 : msg.fill(msg.raw("history.page"), Msg.vars().raw("page", String.valueOf(page)).raw("pages", String.valueOf(pages))));
-        engine.dialogs().listRows(viewer, "pprev", page > 1 ? List.of(Map.of("", "1")) : List.of());
-        engine.dialogs().listRows(viewer, "pnext", page < pages ? List.of(Map.of("", "1")) : List.of());
+        rows(v, "pprev", page > 1 ? List.of(Map.of("", "1")) : List.of());
+        rows(v, "pnext", page < pages ? List.of(Map.of("", "1")) : List.of());
         show(viewer, "players", v);
     }
 
     /** Next or Previous on whichever list the staff member has open. */
-    void turn(Player viewer, int by) {
+    public void turn(Player viewer, int by) {
         Paging pg = paging.get(viewer.getUniqueId());
         if (pg == null) return;
         paging.put(viewer.getUniqueId(), new Paging(pg.list(), pg.target(), Math.max(1, pg.page() + by)));
@@ -246,7 +270,7 @@ final class Dialogs {
     }
 
     /** After a revoke from the history: read it again and show the same page. */
-    void refreshHistory(Player viewer) {
+    public void refreshHistory(Player viewer) {
         Paging pg = paging.get(viewer.getUniqueId());
         if (pg == null || !pg.list().equals("hist")) return;
         plugin.service().summary(viewer, pg.target(), s -> plugin.service().history(viewer, s.target().name(), rows -> {
@@ -257,14 +281,14 @@ final class Dialogs {
     // ---------------------------------------------------------------- the warning popup
 
     /** The popup a warned player has to acknowledge. {@code count} -1 when unknown. */
-    void warned(Player target, Punishment p, int count) {
+    public void warned(Player target, Punishment p, int count) {
         Map<String, String> v = new LinkedHashMap<>();
         v.put("id", String.valueOf(p.id()));
         v.put("reason", p.reason());
         v.put("actor", p.actorName());
         v.put("date", plugin.settings().dates.format(Instant.ofEpochMilli(p.created())));
         v.put("count", count < 0 ? "?" : String.valueOf(count));
-        engine.dialogs().show(target, NAMESPACE + ":warned", v);
+        engine.open(target, NAMESPACE + ":warned", v);
     }
 
     static String lower(String s) {

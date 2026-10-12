@@ -1,6 +1,11 @@
-package ai.resourcepack.verdict;
+package ai.resourcepack.punishments.core;
 
-import ai.resourcepack.verdict.Punishment.Type;
+import ai.resourcepack.punishments.PunishmentsPlugin;
+import ai.resourcepack.punishments.api.Punishment;
+
+import ai.resourcepack.punishments.api.Punishment.Type;
+import ai.resourcepack.punishments.core.dialog.Dialogs;
+import ai.resourcepack.punishments.core.platform.Platform;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
@@ -17,34 +22,34 @@ import java.util.Map;
  * config.yml gives them. These are the "backup" the dialogs never take
  * away: everything the panel does is one of these, run as the staff member.
  */
-final class Commands {
+public final class Commands {
 
-    private final VerdictPlugin plugin;
+    private final PunishmentsPlugin plugin;
     private final List<Command> registered = new ArrayList<>();
 
-    Commands(VerdictPlugin plugin) {
+    public Commands(PunishmentsPlugin plugin) {
         this.plugin = plugin;
     }
 
-    void register() {
+    public void register() {
         unregister();
-        add("punish", "verdict.punish", "/<command> [player]", this::punish);
-        add("warn", "verdict.warn", "/<command> <player> [-s] [reason]", (s, a) -> punishment(s, a, Type.WARN, false, "warn"));
-        add("unwarn", "verdict.unwarn", "/<command> <player>", (s, a) -> lift(s, a, Type.WARN, "unwarn"));
-        add("mute", "verdict.mute", "/<command> <player> [length] [-s] [reason]", (s, a) -> punishment(s, a, Type.MUTE, true, "mute"));
-        add("unmute", "verdict.unmute", "/<command> <player>", (s, a) -> lift(s, a, Type.MUTE, "unmute"));
-        add("kick", "verdict.kick", "/<command> <player> [-s] [reason]", (s, a) -> punishment(s, a, Type.KICK, false, "kick"));
-        add("tempban", "verdict.tempban", "/<command> <player> <length> [-s] [-ip] [reason]", (s, a) -> punishment(s, a, Type.BAN, true, "tempban"));
-        add("ban", "verdict.ban", "/<command> <player> [length] [-s] [-ip] [reason]", (s, a) -> punishment(s, a, Type.BAN, false, "ban"));
-        add("unban", "verdict.unban", "/<command> <player>", (s, a) -> lift(s, a, Type.BAN, "unban"));
-        add("history", "verdict.history", "/<command> <player>", this::history);
-        add("verdict", null, "/<command> <reload|revoke <id>>", this::admin);
+        add("punish", "punishments.punish", "/<command> [player]", this::punish);
+        add("warn", "punishments.warn", "/<command> <player> [-s] [reason]", (s, a) -> punishment(s, a, Type.WARN, false, "warn"));
+        add("unwarn", "punishments.unwarn", "/<command> <player>", (s, a) -> lift(s, a, Type.WARN, "unwarn"));
+        add("mute", "punishments.mute", "/<command> <player> [length] [-s] [reason]", (s, a) -> punishment(s, a, Type.MUTE, true, "mute"));
+        add("unmute", "punishments.unmute", "/<command> <player>", (s, a) -> lift(s, a, Type.MUTE, "unmute"));
+        add("kick", "punishments.kick", "/<command> <player> [-s] [reason]", (s, a) -> punishment(s, a, Type.KICK, false, "kick"));
+        add("tempban", "punishments.tempban", "/<command> <player> <length> [-s] [-ip] [reason]", (s, a) -> punishment(s, a, Type.BAN, true, "tempban"));
+        add("ban", "punishments.ban", "/<command> <player> [length] [-s] [-ip] [reason]", (s, a) -> punishment(s, a, Type.BAN, false, "ban"));
+        add("unban", "punishments.unban", "/<command> <player>", (s, a) -> lift(s, a, Type.BAN, "unban"));
+        add("history", "punishments.history", "/<command> <player>", this::history);
+        add("punishments", null, "/<command> <reload|revoke <id>>", this::admin);
         Bukkit.getOnlinePlayers().forEach(Player::updateCommands);
     }
 
-    void unregister() {
-        CommandMap map = Bukkit.getCommandMap();
-        Map<String, Command> known = map.getKnownCommands();
+    public void unregister() {
+        CommandMap map = Platform.commandMap();
+        Map<String, Command> known = Platform.knownCommands(map);
         for (Command c : registered) {
             c.unregister(map);
             known.values().removeIf(x -> x == c);
@@ -60,29 +65,30 @@ final class Commands {
     private void add(String key, String permission, String usage, Handler handler) {
         Settings.CommandSpec spec = plugin.settings().command(key);
         if (!spec.enabled()) return;
-        Map<String, Command> known = Bukkit.getCommandMap().getKnownCommands();
+        CommandMap map = Platform.commandMap();
+        Map<String, Command> known = Platform.knownCommands(map);
         // Take the name over from whoever has it (vanilla /ban, Essentials /mute):
-        // a server installing Verdict wants Verdict's.
+        // a server installing Punishments wants its own.
         List<String> names = new ArrayList<>(spec.aliases());
         names.add(spec.name());
         for (String n : names) {
             Command old = known.get(n);
-            if (old != null && !(old instanceof VerdictCommand)) known.remove(n);
+            if (old != null && !(old instanceof PunishmentsCommand)) known.remove(n);
         }
-        VerdictCommand cmd = new VerdictCommand(key, spec.name(), spec.aliases(), permission, usage, handler);
-        Bukkit.getCommandMap().register("verdict", cmd);
+        PunishmentsCommand cmd = new PunishmentsCommand(key, spec.name(), spec.aliases(), permission, usage, handler);
+        map.register("punishments", cmd);
         // register() keeps an existing name's owner on a clash; make sure ours is the bare name.
         known.put(spec.name(), cmd);
         for (String a : spec.aliases()) known.put(a, cmd);
         registered.add(cmd);
     }
 
-    private final class VerdictCommand extends Command {
+    private final class PunishmentsCommand extends Command {
         private final String key;
         private final Handler handler;
 
-        VerdictCommand(String key, String name, List<String> aliases, String permission, String usage, Handler handler) {
-            super(name, "Verdict: " + key, usage, aliases);
+        PunishmentsCommand(String key, String name, List<String> aliases, String permission, String usage, Handler handler) {
+            super(name, "Punishments: " + key, usage, aliases);
             this.key = key;
             this.handler = handler;
             setPermission(permission);
@@ -117,7 +123,7 @@ final class Commands {
             case "tempban" -> "/" + name + " <player> <length> [-s] [-ip] [reason]";
             case "ban" -> "/" + name + " <player> [length] [-s] [-ip] [reason]";
             case "history" -> "/" + name + " <player>";
-            case "verdict" -> "/" + name + " reload | revoke <id>";
+            case "punishments" -> "/" + name + " reload | revoke <id>";
             default -> "/" + name + " <player>";
         };
         plugin.msg().tell(s, "errors.usage", Msg.vars().text("usage", usage));
@@ -155,7 +161,7 @@ final class Commands {
             }
             reason.add(a);
         }
-        if (ip && !sender.hasPermission("verdict.ban.ip")) {
+        if (ip && !sender.hasPermission("punishments.ban.ip")) {
             plugin.msg().tell(sender, "errors.no-permission", null);
             return;
         }
@@ -204,7 +210,7 @@ final class Commands {
         String sub = args.length == 0 ? "" : args[0].toLowerCase(Locale.ROOT);
         switch (sub) {
             case "reload" -> {
-                if (!sender.hasPermission("verdict.admin")) {
+                if (!sender.hasPermission("punishments.admin")) {
                     plugin.msg().tell(sender, "errors.no-permission", null);
                     return;
                 }
@@ -213,10 +219,10 @@ final class Commands {
             }
             case "revoke" -> {
                 if (args.length < 2) {
-                    usage(sender, "verdict");
+                    usage(sender, "punishments");
                     return;
                 }
-                if (!sender.hasPermission("verdict.revoke")) {
+                if (!sender.hasPermission("punishments.revoke")) {
                     plugin.msg().tell(sender, "errors.no-permission", null);
                     return;
                 }
@@ -238,14 +244,14 @@ final class Commands {
             }
             case "act" -> act(sender, args);
             default -> {
-                if (sender.hasPermission("verdict.admin")) usage(sender, "verdict");
+                if (sender.hasPermission("punishments.admin")) usage(sender, "punishments");
                 else plugin.msg().tell(sender, "errors.no-permission", null);
             }
         }
     }
 
     /**
-     * What the panel's buttons run: {@code /verdict act <what> [target]}. Each
+     * What the panel's buttons run: {@code /punishments act <what> [target]}. Each
      * is the same punishment the plain command gives, with the reason, length
      * and silence read off the staff member's own panel controls, and checked
      * against the same permission the plain command needs.
@@ -260,7 +266,7 @@ final class Commands {
         switch (what) {
             case "warn", "mute", "kick", "tempban", "ban" -> {
                 if (target == null) return;
-                if (!player.hasPermission("verdict." + what)) {
+                if (!player.hasPermission("punishments." + what)) {
                     plugin.msg().tell(player, "errors.no-permission", null);
                     return;
                 }
@@ -284,16 +290,16 @@ final class Commands {
                     return;
                 }
                 service.punish(new Service.Request(player, type, target, length, silent, false, "#" + preset, type == Type.MUTE));
-                if (type == Type.KICK || type == Type.WARN) player.closeDialog();
+                if (type == Type.KICK || type == Type.WARN) dialogs.close(player);
                 else dialogs.refreshPanel(player, target);
             }
             case "confirm" -> {
                 Dialogs.Pending p = dialogs.takePending(player);
                 if (p == null) {
-                    player.closeDialog();
+                    dialogs.close(player);
                     return;
                 }
-                if (!player.hasPermission(p.temp() ? "verdict.tempban" : "verdict.ban")) {
+                if (!player.hasPermission(p.temp() ? "punishments.tempban" : "punishments.ban")) {
                     plugin.msg().tell(player, "errors.no-permission", null);
                     return;
                 }
@@ -305,7 +311,7 @@ final class Commands {
             }
             case "unmute", "unban" -> {
                 if (target == null) return;
-                if (!player.hasPermission("verdict." + what)) {
+                if (!player.hasPermission("punishments." + what)) {
                     plugin.msg().tell(player, "errors.no-permission", null);
                     return;
                 }
@@ -314,7 +320,7 @@ final class Commands {
             }
             case "revoke" -> {
                 if (target == null) return;
-                if (!player.hasPermission("verdict.revoke")) {
+                if (!player.hasPermission("punishments.revoke")) {
                     plugin.msg().tell(player, "errors.no-permission", null);
                     return;
                 }
@@ -335,7 +341,7 @@ final class Commands {
     private List<String> complete(String key, CommandSender sender, String[] args) {
         String last = args[args.length - 1].toLowerCase(Locale.ROOT);
         List<String> out = new ArrayList<>();
-        if (key.equals("verdict")) {
+        if (key.equals("punishments")) {
             if (args.length == 1) for (String s : List.of("reload", "revoke")) if (s.startsWith(last)) out.add(s);
             return out;
         }

@@ -1,4 +1,8 @@
-package ai.resourcepack.verdict;
+package ai.resourcepack.punishments;
+
+import ai.resourcepack.punishments.core.*;
+import ai.resourcepack.punishments.core.dialog.DialogHook;
+import ai.resourcepack.punishments.core.dialog.Dialogs;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -10,16 +14,23 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
- * Verdict: warn, mute, kick, temp-ban and ban, from a dialog or a command.
- * The panel needs RP Engine (its dialogs ship in this jar); the commands need nothing.
+ * Punishments: warn, mute, kick, temp-ban and ban, from a dialog or a command.
+ * The panel needs Dialog Engine (its dialogs ship in this jar); the commands
+ * need nothing.
  */
-public final class VerdictPlugin extends JavaPlugin {
+public final class PunishmentsPlugin extends JavaPlugin {
 
     private Settings settings;
     private Msg msg;
     private Service service;
     private Commands commands;
     private Dialogs dialogs;
+    private ai.resourcepack.common.update.UpdateCheck updates;
+
+    /** The SpigotMC resource the update check asks about; 0 until there is a page to ask. */
+    static final int SPIGOT_RESOURCE = 0;
+    /** The first Dialog Engine with what the panel needs: installDrawn and setting. */
+    static final String DIALOG_ENGINE_MIN = "0.4.0";
 
     @Override
     public void onEnable() {
@@ -33,7 +44,7 @@ public final class VerdictPlugin extends JavaPlugin {
             storage.open();
         } catch (Exception e) {
             getLogger().severe("Could not open the punishment database: " + e.getMessage());
-            getLogger().severe("Verdict is disabled. Fix storage: in config.yml and restart.");
+            getLogger().severe("Punishments is disabled. Fix storage: in config.yml and restart.");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -42,21 +53,34 @@ public final class VerdictPlugin extends JavaPlugin {
         commands.register();
         getServer().getPluginManager().registerEvents(new Listeners(this), this);
 
-        Plugin engine = getServer().getPluginManager().getPlugin("RPEngine");
+        Plugin engine = getServer().getPluginManager().getPlugin("DialogEngine");
         if (engine != null && engine.isEnabled()) {
             try {
-                dialogs = EngineHook.attach(this, engine);
+                dialogs = DialogHook.attach(this);
             } catch (LinkageError | RuntimeException e) {
-                getLogger().warning("RP Engine is installed but could not be used (" + e + "); commands only.");
+                getLogger().warning("Dialog Engine is installed but could not be used (" + e + "); commands only."
+                        + " The panel needs Dialog Engine " + DIALOG_ENGINE_MIN + " or newer.");
                 dialogs = null;
             }
         } else {
-            getLogger().info("RP Engine is not installed: commands only. Install it for the punishment panel.");
+            getLogger().info("Dialog Engine is not installed: commands only. Install it for the punishment panel.");
+        }
+
+        if (SPIGOT_RESOURCE > 0) {
+            updates = ai.resourcepack.common.update.UpdateCheck.spigot(this, SPIGOT_RESOURCE)
+                    .name("Punishments")
+                    .permission("punishments.update")
+                    .enabledWhen(() -> getConfig().getBoolean("update-check", true))
+                    .player((player, update) -> msg.tellRaw(player, "Punishments <white>" + update.latest()
+                            + "</white> is out (you have " + update.running() + "). <u><click:open_url:'" + update.url()
+                            + "'><hover:show_text:'" + update.url() + "'>Get it on SpigotMC</hover></click></u>"))
+                    .start();
         }
     }
 
     @Override
     public void onDisable() {
+        if (updates != null) updates.stop();
         if (commands != null) commands.unregister();
         if (service != null) service.shutdown();
     }
@@ -81,24 +105,24 @@ public final class VerdictPlugin extends JavaPlugin {
         msg = new Msg(YamlConfiguration.loadConfiguration(new File(getDataFolder(), "messages.yml")), defaults);
     }
 
-    void reloadEverything() {
+    public void reloadEverything() {
         loadFiles();
         commands.register();
     }
 
-    Settings settings() {
+    public Settings settings() {
         return settings;
     }
 
-    Msg msg() {
+    public Msg msg() {
         return msg;
     }
 
-    Service service() {
+    public Service service() {
         return service;
     }
 
-    Dialogs dialogs() {
+    public Dialogs dialogs() {
         return dialogs;
     }
 }

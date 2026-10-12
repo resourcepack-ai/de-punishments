@@ -1,1 +1,7 @@
-rootProject.name = 'verdict'
+rootProject.name = 'punishments'
+
+// ai.resourcepack:common, the small library our plugins shade in, built from
+// source when this repository's copy is beside it.
+if (file('../../plugin-common').isDirectory()) {
+    includeBuild('../../plugin-common')
+}

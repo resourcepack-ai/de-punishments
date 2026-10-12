@@ -1,0 +1,19 @@
+{
+  "providers": [
+    {
+      "type": "space",
+      "advances": {
+        "": 0
+      }
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/dialog_punishments_warned_background.png",
+      "ascent": 7,
+      "height": 130,
+      "chars": [
+        ""
+      ]
+    }
+  ]
+}

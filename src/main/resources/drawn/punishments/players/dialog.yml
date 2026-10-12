@@ -1,0 +1,159 @@
+# One of Punishments' screens, drawn with a resource pack by Dialog Engine.
+# Edit it with /de edit punishments:<name>, or by hand here and run /de reload:
+# a changed file is redrawn by Studio (resourcepack.ai), which needs the internet.
+# An edited screen is kept when Punishments updates; delete its folder to take
+# the new version's. Its clicks run /punish and /punishments act ..., which
+# Punishments answers, and the words on it come from messages.yml.
+title: Punish who?
+style: dialog
+document:
+  column:
+    - column:
+        - row:
+            - space: 3
+            - text: Online now
+              style: heading
+              align: left
+              scale: 1
+              w: grow
+            - space: 2
+          w: grow
+          h: 15
+          gap: 3
+          pad: 0
+          align: start
+          cross: center
+          surface: head
+          name: Heading
+        - column:
+            - text: "{plist_note}"
+              style: muted
+              align: left
+              scale: 1
+              w: grow
+            - grid:
+                - row:
+                    - icon: head:{plist}
+                      size: 16
+                    - text: "{plist}"
+                      style: body
+                      align: left
+                      scale: 1
+                      w: grow
+                  w: grow
+                  h: fit
+                  gap: 4
+                  pad: 3
+                  align: start
+                  cross: center
+                  surface: sheet
+                  onClick:
+                    action: run_command
+                    value: punish {plist}
+              list: plist
+              rows: 6
+              w: grow
+              h: fit
+              gap: 2
+              pad: 0
+              align: center
+              cross: center
+              columns: 2
+          w: grow
+          h: fit
+          gap: 2
+          pad: 5
+          align: start
+          cross: start
+          name: Body
+      w: grow
+      h: fit
+      gap: 0
+      pad: 1
+      align: start
+      cross: start
+      surface: sheet
+      name: Online now
+    - row:
+        - column:
+            - button: Previous
+              icon: ui:arrow-left
+              look: light
+              w: 80
+              onClick:
+                action: run_command
+                value: punishments act page prev
+          list: pprev
+          rows: 1
+          w: 80
+          h: fit
+          gap: 4
+          pad: 0
+          align: start
+          cross: start
+          name: Previous
+        - text: "{plist_page}"
+          style: muted
+          align: center
+          scale: 1
+          w: grow
+        - column:
+            - button: Next
+              icon: ui:arrow-right
+              look: light
+              w: 80
+              onClick:
+                action: run_command
+                value: punishments act page next
+          list: pnext
+          rows: 1
+          w: 80
+          h: fit
+          gap: 4
+          pad: 0
+          align: start
+          cross: start
+          name: Next
+      w: grow
+      h: fit
+      gap: 4
+      pad: 0
+      align: start
+      cross: center
+  w: fit
+  h: fit
+  gap: 4
+  pad: 0
+  align: start
+  cross: start
+  theme:
+    face: "#c6c6c6"
+    accent: "#d8402f"
+contentWidth: 260
+columns: 2
+canCloseWithEscape: true
+pause: true
+showWarning: false
+afterAction: close
+drawButtons: true
+nudge:
+  x: 0
+  y: 0
+buttons:
+  - id: lookup
+    label: Look up
+    width: 100
+    action: run_command
+    value: punish $(name)
+  - id: close
+    label: Close
+    width: 100
+    action: close
+    value: ""
+inputs:
+  - key: name
+    kind: text
+    label: Or type a name
+    width: 200
+    initial: ""
+    maxLength: 16

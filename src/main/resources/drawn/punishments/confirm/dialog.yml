@@ -1,0 +1,123 @@
+# One of Punishments' screens, drawn with a resource pack by Dialog Engine.
+# Edit it with /de edit punishments:<name>, or by hand here and run /de reload:
+# a changed file is redrawn by Studio (resourcepack.ai), which needs the internet.
+# An edited screen is kept when Punishments updates; delete its folder to take
+# the new version's. Its clicks run /punish and /punishments act ..., which
+# Punishments answers, and the words on it come from messages.yml.
+title: "{confirm_title}"
+style: dialog
+document:
+  column:
+    - column:
+        - row:
+            - space: 3
+            - text: Are you sure?
+              style: heading
+              align: left
+              scale: 1
+              w: grow
+            - space: 2
+          w: grow
+          h: 15
+          gap: 3
+          pad: 0
+          align: start
+          cross: center
+          surface: head
+          name: Heading
+        - column:
+            - row:
+                - icon: head:{target}
+                  size: 24
+                  frame: true
+                - column:
+                    - text: "{target}"
+                      style: heading
+                      align: left
+                      scale: 1
+                      w: fit
+                    - text: "{confirm_line}"
+                      style: muted
+                      align: left
+                      scale: 1
+                      w: fit
+                  w: grow
+                  h: fit
+                  gap: 2
+                  pad: 0
+                  align: start
+                  cross: start
+              w: grow
+              h: fit
+              gap: 6
+              pad: 0
+              align: start
+              cross: center
+            - divider: true
+            - pair:
+                - Reason
+                - "{confirm_reason}"
+              style: body
+              w: grow
+            - pair:
+                - Length
+                - "{confirm_length}"
+              style: gold
+              w: grow
+            - pair:
+                - Announced to
+                - "{confirm_audience}"
+              style: body
+              w: grow
+          w: grow
+          h: fit
+          gap: 9
+          pad: 5
+          align: start
+          cross: start
+          name: Body
+      w: grow
+      h: fit
+      gap: 0
+      pad: 1
+      align: start
+      cross: start
+      surface: sheet
+      name: Are you sure?
+  w: fit
+  h: fit
+  gap: 4
+  pad: 0
+  align: start
+  cross: start
+  theme:
+    face: "#c6c6c6"
+    accent: "#d8402f"
+contentWidth: 230
+columns: 2
+canCloseWithEscape: true
+pause: true
+showWarning: false
+afterAction: close
+drawButtons: true
+nudge:
+  x: 0
+  y: 0
+buttons:
+  - id: yes
+    label: Confirm
+    width: 110
+    action: run_command
+    value: punishments act confirm $(details)
+  - id: no
+    label: Back
+    width: 110
+    action: run_command
+    value: punish {target}
+inputs:
+  - key: details
+    kind: text
+    label: Details (optional)
+    width: 220
+    initial: ""
+    maxLength: 100

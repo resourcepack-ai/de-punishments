@@ -1,6 +1,9 @@
-package ai.resourcepack.verdict;
+package ai.resourcepack.punishments.core;
 
-import ai.resourcepack.verdict.Punishment.Type;
+import ai.resourcepack.punishments.PunishmentsPlugin;
+import ai.resourcepack.punishments.api.Punishment;
+
+import ai.resourcepack.punishments.api.Punishment.Type;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
@@ -18,7 +21,7 @@ import java.util.UUID;
 
 /**
  * The record, in SQLite (a file in the plugin folder, the default) or MySQL
- * (shared by several servers). One connection, used only from Verdict's
+ * (shared by several servers). One connection, used only from Punishments'
  * database thread, so nothing here is synchronised and every call is in the
  * order it was asked for.
  */
@@ -37,7 +40,7 @@ public final class Storage {
     public Storage(ConfigurationSection cfg, File dataFolder) {
         String type = cfg.getString("type", "sqlite").toLowerCase(Locale.ROOT);
         this.mysql = type.equals("mysql") || type.equals("mariadb");
-        String prefix = cfg.getString("table-prefix", "verdict_").replaceAll("[^A-Za-z0-9_]", "");
+        String prefix = cfg.getString("table-prefix", "punishments_").replaceAll("[^A-Za-z0-9_]", "");
         this.players = prefix + "players";
         this.punishments = prefix + "punishments";
         if (mysql) {

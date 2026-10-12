@@ -1,0 +1,378 @@
+# One of Punishments' screens, drawn with a resource pack by Dialog Engine.
+# Edit it with /de edit punishments:<name>, or by hand here and run /de reload:
+# a changed file is redrawn by Studio (resourcepack.ai), which needs the internet.
+# An edited screen is kept when Punishments updates; delete its folder to take
+# the new version's. Its clicks run /punish and /punishments act ..., which
+# Punishments answers, and the words on it come from messages.yml.
+title: Punish {target}
+style: dialog
+document:
+  column:
+    - row:
+        - column:
+            - row:
+                - icon: head:{target}
+                  size: 24
+                  frame: true
+                - column:
+                    - text: "{target}"
+                      style: heading
+                      align: left
+                      scale: 1
+                      w: fit
+                    - row:
+                        - icon: ui:dot-green
+                          size: 9
+                          bind: presence_dot
+                          states:
+                            online: ui:dot-green
+                            offline: ui:dot-red
+                        - column:
+                            - space: 1
+                            - text: "{presence}"
+                              style: muted
+                              align: left
+                              scale: 1
+                              w: fit
+                          w: fit
+                          h: fit
+                          gap: 0
+                          pad: 0
+                          align: start
+                          cross: start
+                      w: fit
+                      h: fit
+                      gap: 3
+                      pad: 0
+                      align: start
+                      cross: start
+                  w: fit
+                  h: fit
+                  gap: 2
+                  pad: 0
+                  align: start
+                  cross: start
+              w: fit
+              h: fit
+              gap: 5
+              pad: 0
+              align: start
+              cross: center
+            - pair:
+                - Warns
+                - "{warnings}"
+              style: gold
+              w: grow
+            - pair:
+                - Total
+                - "{total}"
+              style: body
+              w: grow
+            - pair:
+                - Muted
+                - "{mute_state}"
+              style: body
+              w: grow
+            - pair:
+                - Banned
+                - "{ban_state}"
+              style: body
+              w: grow
+          w: 112
+          h: grow
+          gap: 4
+          pad: 5
+          align: start
+          cross: start
+          surface: sheet
+          name: Card
+        - column:
+            - row:
+                - space: 3
+                - text: Punishment
+                  style: heading
+                  align: left
+                  scale: 1
+                  w: grow
+                - space: 2
+              w: grow
+              h: 15
+              gap: 3
+              pad: 0
+              align: start
+              cross: center
+              surface: head
+              name: Heading
+            - column:
+                - row:
+                    - column:
+                        - space: 4
+                        - icon: ui:warning
+                          size: 9
+                      w: fit
+                      h: fit
+                      gap: 0
+                      pad: 0
+                      align: start
+                      cross: start
+                      name: Icon
+                    - column:
+                        - space: 3
+                        - text: Reason
+                          style: body
+                          align: left
+                          scale: 1
+                          w: fit
+                      w: grow
+                      h: fit
+                      gap: 1
+                      pad: 0
+                      align: start
+                      cross: start
+                      name: Words
+                    - dropdown: Hacking
+                      options:
+                        - Hacking
+                        - Spam
+                        - Toxicity
+                        - Griefing
+                        - Advertising
+                        - Ban evasion
+                        - Other
+                      bind: punish_reason
+                      w: 86
+                  w: grow
+                  h: fit
+                  gap: 5
+                  pad: 0
+                  align: start
+                  cross: start
+                  name: Reason
+                - row:
+                    - column:
+                        - space: 4
+                        - icon: ui:hourglass
+                          size: 9
+                      w: fit
+                      h: fit
+                      gap: 0
+                      pad: 0
+                      align: start
+                      cross: start
+                      name: Icon
+                    - column:
+                        - space: 3
+                        - text: Length
+                          style: body
+                          align: left
+                          scale: 1
+                          w: fit
+                      w: grow
+                      h: fit
+                      gap: 1
+                      pad: 0
+                      align: start
+                      cross: start
+                      name: Words
+                    - segmented:
+                        - Auto
+                        - 1h
+                        - 1d
+                        - 7d
+                        - Perm
+                      selected: 0
+                      bind: punish_length
+                      compact: true
+                      look: raised
+                      w: fit
+                  w: grow
+                  h: fit
+                  gap: 5
+                  pad: 0
+                  align: start
+                  cross: start
+                  name: Length
+                - row:
+                    - column:
+                        - space: 4
+                        - icon: ui:eye-off
+                          size: 9
+                      w: fit
+                      h: fit
+                      gap: 0
+                      pad: 0
+                      align: start
+                      cross: start
+                      name: Icon
+                    - column:
+                        - space: 3
+                        - text: Silent
+                          style: body
+                          align: left
+                          scale: 1
+                          w: fit
+                      w: grow
+                      h: fit
+                      gap: 1
+                      pad: 0
+                      align: start
+                      cross: start
+                      name: Words
+                    - switch: false
+                      bind: punish_silent
+                  w: grow
+                  h: fit
+                  gap: 5
+                  pad: 0
+                  align: start
+                  cross: start
+                  name: Silent
+              w: grow
+              h: fit
+              gap: 9
+              pad: 5
+              align: start
+              cross: start
+              name: Body
+          w: grow
+          h: grow
+          gap: 0
+          pad: 1
+          align: start
+          cross: start
+          surface: sheet
+          name: Punishment
+      w: grow
+      h: fit
+      gap: 4
+      pad: 0
+      align: start
+      cross: start
+    - row:
+        - button: History
+          icon: ui:scroll
+          align: left
+          look: light
+          w: 112
+          onClick:
+            action: run_command
+            value: history {target}
+        - button: Warn
+          icon: ui:warning
+          look: light
+          w: grow
+          onClick:
+            action: run_command
+            value: punishments act warn {target}
+        - button: Mute
+          icon: ui:mute
+          look: light
+          w: grow
+          onClick:
+            action: run_command
+            value: punishments act mute {target}
+      w: grow
+      h: fit
+      gap: 4
+      pad: 0
+      align: start
+      cross: center
+    - row:
+        - column:
+            - button: Unmute
+              icon: ui:sound
+              align: left
+              look: light
+              w: grow
+              onClick:
+                action: run_command
+                value: punishments act unmute {target}
+          list: unmute
+          rows: 1
+          w: 112
+          h: fit
+          gap: 4
+          pad: 0
+          align: start
+          cross: start
+          name: Unmute
+        - button: Kick
+          icon: ui:exit
+          look: light
+          w: grow
+          onClick:
+            action: run_command
+            value: punishments act kick {target}
+        - button: Temp-ban
+          icon: ui:clock
+          look: light
+          w: grow
+          onClick:
+            action: run_command
+            value: punishments act tempban {target}
+      w: grow
+      h: fit
+      gap: 4
+      pad: 0
+      align: start
+      cross: center
+    - row:
+        - column:
+            - button: Unban
+              icon: ui:unlock
+              align: left
+              look: light
+              w: grow
+              onClick:
+                action: run_command
+                value: punishments act unban {target}
+          list: unban
+          rows: 1
+          w: 112
+          h: fit
+          gap: 4
+          pad: 0
+          align: start
+          cross: start
+          name: Unban
+        - button: Ban
+          icon: ui:hammer
+          selected: true
+          look: light
+          w: grow
+          onClick:
+            action: run_command
+            value: punishments act ban {target}
+      w: grow
+      h: fit
+      gap: 4
+      pad: 0
+      align: start
+      cross: center
+  w: fit
+  h: fit
+  gap: 3
+  pad: 0
+  align: start
+  cross: start
+  theme:
+    face: "#c6c6c6"
+    accent: "#d8402f"
+contentWidth: 320
+columns: 2
+hideFooter: true
+canCloseWithEscape: true
+pause: true
+showWarning: false
+afterAction: close
+drawButtons: true
+nudge:
+  x: 0
+  y: 0
+buttons:
+  - id: players
+    label: Pick another player
+    width: 150
+    action: run_command
+    value: punish
+inputs: []

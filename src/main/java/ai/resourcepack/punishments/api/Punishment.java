@@ -1,4 +1,6 @@
-package ai.resourcepack.verdict;
+package ai.resourcepack.punishments.api;
+
+import ai.resourcepack.punishments.core.Durations;
 
 import java.util.Locale;
 import java.util.UUID;

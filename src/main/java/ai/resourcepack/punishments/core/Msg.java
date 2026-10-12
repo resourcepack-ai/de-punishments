@@ -1,7 +1,11 @@
-package ai.resourcepack.verdict;
+package ai.resourcepack.punishments.core;
+
+import ai.resourcepack.punishments.PunishmentsPlugin;
+import ai.resourcepack.punishments.api.Punishment;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import ai.resourcepack.punishments.core.platform.Platform;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -15,18 +19,18 @@ import java.util.Map;
  */
 public final class Msg {
 
-    static final MiniMessage MM = MiniMessage.miniMessage();
+    public static final MiniMessage MM = MiniMessage.miniMessage();
 
     private final YamlConfiguration yml;
     private final YamlConfiguration defaults;
 
-    Msg(YamlConfiguration yml, YamlConfiguration defaults) {
+    public Msg(YamlConfiguration yml, YamlConfiguration defaults) {
         this.yml = yml;
         this.defaults = defaults;
     }
 
     public static final class Vars {
-        final Map<String, String> map = new LinkedHashMap<>();
+        public final Map<String, String> map = new LinkedHashMap<>();
 
         public Vars text(String key, Object value) {
             map.put(key, MM.escapeTags(value == null ? "" : String.valueOf(value)));
@@ -64,11 +68,16 @@ public final class Msg {
 
     /** With the prefix in front: what staff are told. */
     public void tell(CommandSender to, String path, Vars vars) {
-        to.sendMessage(MM.deserialize(raw("prefix") + fill(raw(path), vars)));
+        Platform.send(to, MM.deserialize(raw("prefix") + fill(raw(path), vars)));
     }
 
     public void tellRaw(CommandSender to, String miniMessage) {
-        to.sendMessage(MM.deserialize(raw("prefix") + miniMessage));
+        Platform.send(to, MM.deserialize(raw("prefix") + miniMessage));
+    }
+
+    /** Without the prefix: what a punished player is told. */
+    public void send(CommandSender to, String path, Vars vars) {
+        Platform.send(to, component(path, vars));
     }
 
     public String type(Punishment p) {

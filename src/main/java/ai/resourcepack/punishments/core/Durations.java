@@ -1,4 +1,7 @@
-package ai.resourcepack.verdict;
+package ai.resourcepack.punishments.core;
+
+import ai.resourcepack.punishments.PunishmentsPlugin;
+import ai.resourcepack.punishments.api.Punishment;
 
 import java.util.Locale;
 import java.util.regex.Matcher;

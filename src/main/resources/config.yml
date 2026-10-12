@@ -1,22 +1,22 @@
-# Verdict - punishments, with a panel drawn in Studio.
+# Punishments - warn, mute, kick and ban, with a panel drawn in Studio.
 #
 # Every punishment works two ways:
 #   - from the panel: /punish <player> opens a dialog with the player's record,
 #     your Reason, Length and Silent picks, and a button per punishment (needs
-#     RP Engine and a 1.21.6+ client). The screens ship inside this jar and
-#     install into RP Engine's content folder as content/verdict/.
+#     Dialog Engine and a 1.21.6+ client). The screens ship inside this jar and
+#     install into Dialog Engine as plugins/DialogEngine/drawn/punishments/.
 #   - from a plain command, always: /warn /mute /kick /tempban /ban and the
 #     rest. The panel's buttons give exactly what these commands give, so the
 #     two can never disagree.
 #
 # Every word players see is in messages.yml (the ones drawn on the panel too).
-# /verdict reload reads both.
+# /punishments reload reads both.
 
 storage:
   # sqlite: a file in this folder. mysql / mariadb: shared by several servers.
   type: sqlite
   sqlite-file: punishments.db
-  table-prefix: verdict_
+  table-prefix: punishments_
   mysql:
     host: localhost
     port: 3306
@@ -30,10 +30,10 @@ storage:
 
 # Every command's name and aliases, and whether it exists at all. A command
 # turned off here is simply not registered (its button in the panel still
-# shows, so take that out of dialogs/panel.yml too). A name another plugin
-# already owns is taken over, so Verdict's /ban is the /ban.
+# shows). A name another plugin already owns is taken over, so this plugin's
+# /ban is the /ban.
 commands:
-  punish:   { enabled: true, name: punish,   aliases: [p, punishments] }
+  punish:   { enabled: true, name: punish,   aliases: [p] }
   warn:     { enabled: true, name: warn,     aliases: [] }
   unwarn:   { enabled: true, name: unwarn,   aliases: [delwarn] }
   mute:     { enabled: true, name: mute,     aliases: [tempmute] }
@@ -43,7 +43,7 @@ commands:
   ban:      { enabled: true, name: ban,      aliases: [] }
   unban:    { enabled: true, name: unban,    aliases: [pardon] }
   history:  { enabled: true, name: history,  aliases: [hist, checkban, warnings] }
-  verdict:  { enabled: true, name: verdict,  aliases: [vd] }
+  punishments: { enabled: true, name: punishments, aliases: [puns] }
 
 # The reasons staff pick from. The key is what a command takes after a #
 # (/tempban Steve #hacking), and what the panel's dropdown sends. Each may say
@@ -90,12 +90,12 @@ default-length:
 # staff member is told.
 limits:
   helper:
-    permission: verdict.limit.helper
+    permission: punishments.limit.helper
     mute: 1d
     tempban: 3d
     permanent-ban: false
   moderator:
-    permission: verdict.limit.moderator
+    permission: punishments.limit.moderator
     mute: 30d
     tempban: 30d
     permanent-ban: true
@@ -104,13 +104,13 @@ warnings:
   # Warnings older than this stop counting toward escalation. 0 = never.
   expire-after: 30d
   # Show a warned player a dialog they have to acknowledge (falls back to chat
-  # for clients older than 1.21.6, or without RP Engine). A player who was
+  # for clients older than 1.21.6, or without Dialog Engine). A player who was
   # offline sees it when they next join.
   popup: true
   # When a player reaches a number of warnings, run a command as the console.
   # {target} is the player, {count} their warnings. The command only runs when
   # the staff member who gave the warning has the permission to run it
-  # themselves (and verdict.ban.ip for an -ip ban); otherwise they are told,
+  # themselves (and punishments.ban.ip for an -ip ban); otherwise they are told,
   # and somebody who does have it has to step in.
   escalation:
     - { count: 3, command: "mute {target} 1h -s #spam Reached {count} warnings" }
@@ -127,12 +127,12 @@ mute:
 protection:
   # Players with this permission cannot be punished (except by console).
   # An offline player counts as exempt if they held it when last online.
-  exempt-permission: verdict.exempt
+  exempt-permission: punishments.exempt
   # Staff can punish themselves (useful only for testing).
   allow-self: false
 
 # Who hears about a punishment. A silent one (-s, or the panel's Silent
-# switch) goes only to staff with verdict.notify.
+# switch) goes only to staff with punishments.notify.
 broadcast:
   warn: staff
   mute: everyone
@@ -145,3 +145,7 @@ broadcast:
 
 # Dates in /history and the dialogs. Java DateTimeFormatter pattern.
 date-format: "d MMM yyyy, HH:mm"
+
+# Ask SpigotMC once in a while whether a newer Punishments is out, and tell
+# the console and anyone with punishments.update (op by default).
+update-check: true

@@ -1,4 +1,4 @@
-# Every word Verdict says. MiniMessage: <red>, <#3670f8>, <bold>, <newline>...
+# Every word Punishments says. MiniMessage: <red>, <#3670f8>, <bold>, <newline>...
 # https://docs.advntr.dev/minimessage/format.html
 #
 # Placeholders: {target} {actor} {reason} {length} {expires} {id} {count}
@@ -92,7 +92,7 @@ errors:
   capped: "<yellow>That is longer than you may give; it is <white>{length}</white> instead."
   no-permanent: "<red>You can't ban permanently. Give a length."
   storage: "<red>The punishment record could not be reached. The console says why."
-  no-dialogs: "<red>The panel needs RP Engine and a 1.21.6+ client. Use the commands: <white>/warn /mute /kick /tempban /ban"
+  no-dialogs: "<red>The panel needs Dialog Engine and a 1.21.6+ client. Use the commands: <white>/warn /mute /kick /tempban /ban"
   already-muted: "<yellow>{target} was already muted; this replaces it."
   already-banned: "<yellow>{target} was already banned; this replaces it."
 

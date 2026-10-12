@@ -1,46 +1,47 @@
-name: Verdict
+name: Punishments
 version: '${version}'
-main: ai.resourcepack.verdict.VerdictPlugin
+main: ai.resourcepack.punishments.PunishmentsPlugin
 api-version: '1.21'
 author: ResourcePack AI
 website: https://resourcepack.ai
 description: Warn, mute, kick, temp-ban and ban, from a dialog panel or plain commands.
-softdepend: [RPEngine]
+softdepend: [DialogEngine]
 # Commands are registered at runtime under the names in config.yml.
 permissions:
-  verdict.staff:
+  punishments.staff:
     description: Every punishment command and the panel.
     default: op
     children:
-      verdict.punish: true
-      verdict.warn: true
-      verdict.unwarn: true
-      verdict.mute: true
-      verdict.unmute: true
-      verdict.kick: true
-      verdict.tempban: true
-      verdict.ban: true
-      verdict.ban.ip: true
-      verdict.unban: true
-      verdict.history: true
-      verdict.revoke: true
-      verdict.notify: true
-  verdict.admin:
-    description: /verdict reload, and everything in verdict.staff.
+      punishments.punish: true
+      punishments.warn: true
+      punishments.unwarn: true
+      punishments.mute: true
+      punishments.unmute: true
+      punishments.kick: true
+      punishments.tempban: true
+      punishments.ban: true
+      punishments.ban.ip: true
+      punishments.unban: true
+      punishments.history: true
+      punishments.revoke: true
+      punishments.notify: true
+  punishments.admin:
+    description: /punishments reload, and everything in punishments.staff.
     default: op
     children:
-      verdict.staff: true
-  verdict.punish: { description: "/punish, the panel", default: op }
-  verdict.warn: { description: "/warn", default: op }
-  verdict.unwarn: { description: "/unwarn", default: op }
-  verdict.mute: { description: "/mute", default: op }
-  verdict.unmute: { description: "/unmute", default: op }
-  verdict.kick: { description: "/kick", default: op }
-  verdict.tempban: { description: "/tempban", default: op }
-  verdict.ban: { description: "/ban, permanent or with a length", default: op }
-  verdict.ban.ip: { description: "-ip on a ban, which also bans the address", default: op }
-  verdict.unban: { description: "/unban", default: op }
-  verdict.history: { description: "/history", default: op }
-  verdict.revoke: { description: "/verdict revoke, and Revoke in the history dialog", default: op }
-  verdict.notify: { description: "Hear silent punishments and staff-only announcements", default: op }
-  verdict.exempt: { description: "Cannot be punished by players", default: false }
+      punishments.staff: true
+  punishments.punish: { description: "/punish, the panel", default: op }
+  punishments.warn: { description: "/warn", default: op }
+  punishments.unwarn: { description: "/unwarn", default: op }
+  punishments.mute: { description: "/mute", default: op }
+  punishments.unmute: { description: "/unmute", default: op }
+  punishments.kick: { description: "/kick", default: op }
+  punishments.tempban: { description: "/tempban", default: op }
+  punishments.ban: { description: "/ban, permanent or with a length", default: op }
+  punishments.ban.ip: { description: "-ip on a ban, which also bans the address", default: op }
+  punishments.unban: { description: "/unban", default: op }
+  punishments.history: { description: "/history", default: op }
+  punishments.revoke: { description: "/punishments revoke, and Revoke in the history dialog", default: op }
+  punishments.notify: { description: "Hear silent punishments and staff-only announcements", default: op }
+  punishments.exempt: { description: "Cannot be punished by players", default: false }
+  punishments.update: { description: "Being told on joining that a newer Punishments is out", default: op }

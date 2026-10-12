@@ -1,0 +1,100 @@
+# One of Punishments' screens, drawn with a resource pack by Dialog Engine.
+# Edit it with /de edit punishments:<name>, or by hand here and run /de reload:
+# a changed file is redrawn by Studio (resourcepack.ai), which needs the internet.
+# An edited screen is kept when Punishments updates; delete its folder to take
+# the new version's. Its clicks run /punish and /punishments act ..., which
+# Punishments answers, and the words on it come from messages.yml.
+title: History of {target}
+style: dialog
+document:
+  column:
+    - row:
+        - icon: head:{target}
+          size: 16
+        - text: "{target}"
+          style: heading
+          align: left
+          scale: 1
+          w: fit
+        - text: "{history_summary}"
+          style: muted
+          align: right
+          scale: 1
+          w: grow
+      w: grow
+      h: fit
+      gap: 5
+      pad: 0
+      align: start
+      cross: center
+    - column:
+        - row:
+            - column:
+                - text: "{hist_title}"
+                  style: heading
+                  align: left
+                  scale: 1
+                  w: fit
+                - text: "{hist}"
+                  style: body
+                  align: left
+                  scale: 1
+                  w: fit
+                - text: "{hist_meta}"
+                  style: muted
+                  align: left
+                  scale: 1
+                  w: fit
+              w: grow
+              h: fit
+              gap: 1
+              pad: 0
+              align: start
+              cross: start
+            - button: Revoke
+              look: light
+              w: 52
+              onClick:
+                action: run_command
+                value: punishments act revoke {hist_id}
+          w: grow
+          h: fit
+          gap: 4
+          pad: 4
+          align: start
+          cross: center
+          surface: sheet
+      list: hist
+      rows: 12
+      w: grow
+      h: fit
+      gap: 2
+      pad: 0
+      align: start
+      cross: start
+  w: fit
+  h: fit
+  gap: 4
+  pad: 0
+  align: start
+  cross: start
+  theme:
+    face: "#c6c6c6"
+    accent: "#d8402f"
+contentWidth: 300
+columns: 2
+canCloseWithEscape: true
+pause: true
+showWarning: false
+afterAction: close
+drawButtons: true
+nudge:
+  x: 0
+  y: 0
+buttons:
+  - id: back
+    label: Back to the panel
+    width: 150
+    action: run_command
+    value: punish {target}
+inputs: []

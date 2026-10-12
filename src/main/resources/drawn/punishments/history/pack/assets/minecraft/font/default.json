@@ -1,0 +1,69 @@
+{
+  "providers": [
+    {
+      "type": "space",
+      "advances": {
+        "": 0,
+        "": 0,
+        "": 0,
+        "": 0,
+        "": 0,
+        "": 0
+      }
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/dialog_punishments_history_background.png",
+      "ascent": 7,
+      "height": 234,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/dialog_punishments_history_tile_r0c1.png",
+      "ascent": 7,
+      "height": 234,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/dialog_punishments_history_tile_r1c0.png",
+      "ascent": 7,
+      "height": 252,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/dialog_punishments_history_tile_r1c1.png",
+      "ascent": 7,
+      "height": 252,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/dialog_punishments_history_tile_r2c0.png",
+      "ascent": 7,
+      "height": 36,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/dialog_punishments_history_tile_r2c1.png",
+      "ascent": 7,
+      "height": 36,
+      "chars": [
+        ""
+      ]
+    }
+  ]
+}

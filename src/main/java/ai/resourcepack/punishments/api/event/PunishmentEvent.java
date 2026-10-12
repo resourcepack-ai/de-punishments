@@ -1,6 +1,6 @@
-package ai.resourcepack.verdict.event;
+package ai.resourcepack.punishments.api.event;
 
-import ai.resourcepack.verdict.Punishment;
+import ai.resourcepack.punishments.api.Punishment;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;

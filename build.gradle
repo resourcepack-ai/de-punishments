@@ -1,9 +1,10 @@
 plugins {
     id 'java'
+    id 'com.gradleup.shadow' version '8.3.5'
 }
 
 group = 'ai.resourcepack'
-version = '0.1.15'
+version = '0.1.0'
 
 java {
     toolchain {
@@ -18,19 +19,42 @@ tasks.withType(JavaCompile).configureEach {
 
 repositories {
     mavenCentral()
-    maven { url = 'https://repo.papermc.io/repository/maven-public/' }
+    // spigot-api: the one API both servers have, so one jar runs on both.
+    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    // ai.resourcepack:common, looked for here and nowhere else. (A checkout with
+    // ../../plugin-common builds it from source instead; see settings.gradle.)
+    exclusiveContent {
+        forRepository {
+            maven { url = 'https://repo.resourcepack.ai' }
+        }
+        filter {
+            includeGroup 'ai.resourcepack'
+        }
+    }
 }
 
-// RP Engine's jar, built beside this project, as every addon here compiles.
-// compileOnly: the server has the engine, and Verdict runs without it
-// (commands only, no panel).
-def engineJar = System.getenv('ENGINE_JAR')
-        ? files(System.getenv('ENGINE_JAR'))
-        : fileTree(dir: '../../rp-engine/build/libs', include: 'rp-engine-*.jar', exclude: '*-sources.jar')
+// Dialog Engine's jar, built beside this project. compileOnly: the server has
+// it, and Punishments runs without it (commands only, no panel).
+def dialogEngineJar = System.getenv('DIALOG_ENGINE_JAR')
+        ? files(System.getenv('DIALOG_ENGINE_JAR'))
+        : fileTree(dir: '../../dialog-engine/build/libs', include: 'dialog-engine-*.jar', exclude: '*-sources.jar')
 
 dependencies {
-    compileOnly 'io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT'
-    compileOnly engineJar
+    compileOnly 'org.spigotmc:spigot-api:1.21.8-R0.1-SNAPSHOT'
+    compileOnly dialogEngineJar
+
+    // MiniMessage and Adventure, shaded and relocated: Spigot has neither, and
+    // Paper's own copy is left alone. Gson is the server's on both.
+    implementation('net.kyori:adventure-api:4.24.0') { exclude group: 'org.jetbrains' }
+    implementation('net.kyori:adventure-text-minimessage:4.24.0') { exclude group: 'org.jetbrains' }
+    implementation('net.kyori:adventure-text-serializer-legacy:4.24.0') { exclude group: 'org.jetbrains' }
+    // Adventure -> BungeeCord chat, which player.spigot().sendMessage takes on both servers.
+    implementation('net.kyori:adventure-text-serializer-bungeecord:4.4.1') {
+        exclude group: 'com.google.code.gson'
+        exclude group: 'net.md-5'
+        exclude group: 'org.jetbrains'
+    }
+    implementation 'ai.resourcepack:common:0.2.1'
 }
 
 processResources {
@@ -38,4 +62,23 @@ processResources {
     filesMatching('plugin.yml') {
         expand(version: project.version)
     }
+}
+
+shadowJar {
+    archiveBaseName.set('Punishments')
+    archiveClassifier.set('')
+    relocate 'net.kyori', 'ai.resourcepack.punishments.libs.kyori'
+    relocate 'ai.resourcepack.common', 'ai.resourcepack.punishments.libs.common'
+    dependencies {
+        exclude(dependency('org.jetbrains:annotations'))
+        exclude(dependency('org.jspecify:jspecify'))
+    }
+}
+
+jar {
+    enabled = false
+}
+
+build {
+    dependsOn shadowJar
 }
