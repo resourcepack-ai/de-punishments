@@ -8,9 +8,9 @@
     },
     {
       "type": "bitmap",
-      "file": "minecraft:font/dialog_punishments_warned_background.png",
+      "file": "rpai:font/dialog_346cc048/dialog_punishments_confirm_background.png",
       "ascent": 7,
-      "height": 130,
+      "height": 126,
       "chars": [
         ""
       ]

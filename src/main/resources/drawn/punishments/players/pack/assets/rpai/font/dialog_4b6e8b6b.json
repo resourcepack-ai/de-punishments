@@ -9,7 +9,7 @@
     },
     {
       "type": "bitmap",
-      "file": "minecraft:font/dialog_punishments_players_background.png",
+      "file": "rpai:font/dialog_4b6e8b6b/dialog_punishments_players_background.png",
       "ascent": 7,
       "height": 140,
       "chars": [
@@ -18,7 +18,7 @@
     },
     {
       "type": "bitmap",
-      "file": "minecraft:font/dialog_punishments_players_tile_r0c1.png",
+      "file": "rpai:font/dialog_4b6e8b6b/dialog_punishments_players_tile_r0c1.png",
       "ascent": 7,
       "height": 140,
       "chars": [
