@@ -24,7 +24,6 @@ public final class DialogHook {
                 plugin.getLogger().warning("Dialog Engine has no " + Dialogs.NAMESPACE + ":" + screen + "; the console above says why.");
             }
         }
-        plugin.getLogger().info("Dialog Engine found: /punish opens the panel.");
         return new Dialogs(plugin, api);
     }
 }

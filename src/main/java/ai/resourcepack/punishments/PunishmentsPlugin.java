@@ -33,8 +33,30 @@ public final class PunishmentsPlugin extends JavaPlugin {
     static final String DIALOG_ENGINE_MIN = "0.4.1";
 
     @Override
+    public void onLoad() {
+        // Asked before the worlds load, so the answer is back for the startup banner.
+        if (SPIGOT_RESOURCE > 0) {
+            ai.resourcepack.common.update.UpdateCheck.early(this, SPIGOT_RESOURCE);
+        }
+    }
+
+    @Override
     public void onEnable() {
         saveDefaultConfig();
+        if (updates != null) updates.stop();
+        updates = SPIGOT_RESOURCE > 0 ? ai.resourcepack.common.update.UpdateCheck.spigot(this, SPIGOT_RESOURCE)
+                .name("Punishments")
+                .permission("punishments.update")
+                .enabledWhen(() -> getConfig().getBoolean("update-check", true))
+                .player((player, update) -> msg.tellRaw(player, "Punishments <white>" + update.latest()
+                        + "</white> is out (you have " + update.running() + "). <u><click:open_url:'" + update.url()
+                        + "'><hover:show_text:'" + update.url() + "'>Get it on SpigotMC</hover></click></u>")) : null;
+        ai.resourcepack.common.banner.StartupBanner banner = ai.resourcepack.common.banner.StartupBanner.begin(this)
+                .name("Punishments")
+                .addonOf("Dialog Engine")
+                .tagline("Warn, mute, kick and ban from a panel.")
+                .docs("https://resourcepack.ai/docs/punishments");
+        if (updates != null) banner.updates(updates);
         if (!new File(getDataFolder(), "messages.yml").exists()) saveResource("messages.yml", false);
         loadFiles();
 
@@ -57,25 +79,18 @@ public final class PunishmentsPlugin extends JavaPlugin {
         if (engine != null && engine.isEnabled()) {
             try {
                 dialogs = DialogHook.attach(this);
+                banner.ok("Panel", "/punish opens it");
             } catch (LinkageError | RuntimeException e) {
                 getLogger().warning("Dialog Engine is installed but could not be used (" + e + "); commands only."
                         + " The panel needs Dialog Engine " + DIALOG_ENGINE_MIN + " or newer.");
                 dialogs = null;
             }
         } else {
-            getLogger().info("Dialog Engine is not installed: commands only. Install it for the punishment panel.");
+            banner.ok("Panel", "Commands only. Install Dialog Engine for the panel");
         }
 
-        if (SPIGOT_RESOURCE > 0) {
-            updates = ai.resourcepack.common.update.UpdateCheck.spigot(this, SPIGOT_RESOURCE)
-                    .name("Punishments")
-                    .permission("punishments.update")
-                    .enabledWhen(() -> getConfig().getBoolean("update-check", true))
-                    .player((player, update) -> msg.tellRaw(player, "Punishments <white>" + update.latest()
-                            + "</white> is out (you have " + update.running() + "). <u><click:open_url:'" + update.url()
-                            + "'><hover:show_text:'" + update.url() + "'>Get it on SpigotMC</hover></click></u>"))
-                    .start();
-        }
+        if (updates != null) updates.start();
+        banner.print();
     }
 
     @Override

@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'ai.resourcepack'
-version = '0.1.1'
+version = '0.1.2'
 
 java {
     toolchain {
@@ -54,7 +54,7 @@ dependencies {
         exclude group: 'net.md-5'
         exclude group: 'org.jetbrains'
     }
-    implementation 'ai.resourcepack:common:0.3.1'
+    implementation 'ai.resourcepack:common:0.5.0'
 }
 
 processResources {
