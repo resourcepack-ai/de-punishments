@@ -54,7 +54,7 @@ dependencies {
         exclude group: 'net.md-5'
         exclude group: 'org.jetbrains'
     }
-    implementation 'ai.resourcepack:common:0.8.0'
+    implementation 'ai.resourcepack:common:0.8.1'
 }
 
 processResources {
