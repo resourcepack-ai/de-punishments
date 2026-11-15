@@ -17,7 +17,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-// The `yaml` package: installed here, or else Studio's copy beside this repository.
+// The `yaml` package: `npm install yaml` here, or a copy found three folders up
+// when this sits inside a larger checkout that has one.
 const YAML = (() => {
   for (const from of [import.meta.url, join(here, "../../../studio/package.json")]) {
     try {
