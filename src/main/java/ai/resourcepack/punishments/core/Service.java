@@ -113,6 +113,39 @@ public final class Service {
         });
     }
 
+    /**
+     * Runs database work on the database thread and answers with a future,
+     * completed on the main thread: the API's reads. A failure completes it
+     * exceptionally rather than leaving a caller waiting for ever.
+     */
+    public <T> java.util.concurrent.CompletableFuture<T> ask(Sql<T> work) {
+        java.util.concurrent.CompletableFuture<T> answer = new java.util.concurrent.CompletableFuture<>();
+        try {
+            db.execute(() -> {
+                try {
+                    T result = work.run();
+                    onMain(() -> answer.complete(result));
+                } catch (SQLException | RuntimeException e) {
+                    plugin.getLogger().log(Level.SEVERE, "Database error", e);
+                    onMain(() -> answer.completeExceptionally(e));
+                }
+            });
+        } catch (java.util.concurrent.RejectedExecutionException stopped) {
+            // The plugin is shutting down and the database thread with it.
+            answer.completeExceptionally(stopped);
+        }
+        return answer;
+    }
+
+    /** On the main thread while the plugin runs; where it stands once it has stopped, since nothing can be scheduled then. */
+    private void onMain(Runnable task) {
+        if (plugin.isEnabled()) {
+            Bukkit.getScheduler().runTask(plugin, task);
+        } else {
+            task.run();
+        }
+    }
+
     /** For threads that may block (pre-login): runs on the database thread and waits. */
     <T> T blocking(Sql<T> work) throws Exception {
         Future<T> f = db.submit(work::run);

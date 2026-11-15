@@ -98,6 +98,23 @@ at another Dialog Engine jar.
 
 ## For developers
 
+`Punishments.api()` (in `ai.resourcepack.punishments.api`, with
+`depend: [Punishments]`) answers and acts for another plugin:
+
+```java
+PunishmentsAPI punishments = Punishments.api();
+punishments.isMuted(player);                       // online players, at once
+punishments.activeBan(uuid).thenAccept(ban -> { });   // anybody; completes on the main thread
+punishments.history(uuid, 20).thenAccept(rows -> { });
+punishments.warnings(uuid).thenAccept(count -> { });
+punishments.punish(null, Punishment.Type.MUTE, "Steve", "Spamming", 3_600_000L, false);
+punishments.revoke(null, Punishment.Type.MUTE, "Steve");
+```
+
+`punish` and `revoke` do what the commands do (presets, limits, exemptions,
+events, broadcast, escalation) for the actor given, null being the console. A
+length is milliseconds, `Punishment.NEVER` for ever, `0` the configured default.
+
 `PunishmentPreEvent` (cancellable, reason changeable), `PunishmentEvent`
 (done) and `PunishmentRevokeEvent`, all on the main thread, in
 `ai.resourcepack.punishments.api.event`.

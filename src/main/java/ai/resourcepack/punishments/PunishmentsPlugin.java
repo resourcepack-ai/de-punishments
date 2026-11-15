@@ -71,6 +71,7 @@ public final class PunishmentsPlugin extends JavaPlugin {
             return;
         }
         service = new Service(this, storage);
+        ai.resourcepack.punishments.api.Punishments.set(new ai.resourcepack.punishments.core.Api(service));
         commands = new Commands(this);
         commands.register();
         getServer().getPluginManager().registerEvents(new Listeners(this), this);
@@ -97,6 +98,7 @@ public final class PunishmentsPlugin extends JavaPlugin {
     public void onDisable() {
         if (updates != null) updates.stop();
         if (commands != null) commands.unregister();
+        ai.resourcepack.punishments.api.Punishments.set(null);
         if (service != null) service.shutdown();
     }
 
