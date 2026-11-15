@@ -21,8 +21,8 @@ repositories {
     mavenCentral()
     // spigot-api: the one API both servers have, so one jar runs on both.
     maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-    // ai.resourcepack:common, looked for here and nowhere else. (A checkout with
-    // ../../plugin-common builds it from source instead; see settings.gradle.)
+    // ai.resourcepack:common, the small library our plugins shade in, looked for
+    // here and nowhere else.
     exclusiveContent {
         forRepository {
             maven { url = 'https://repo.resourcepack.ai' }
@@ -33,11 +33,69 @@ repositories {
     }
 }
 
-// Dialog Engine's jar, built beside this project. compileOnly: the server has
-// it, and Punishments runs without it (commands only, no panel).
-def dialogEngineJar = System.getenv('DIALOG_ENGINE_JAR')
-        ? files(System.getenv('DIALOG_ENGINE_JAR'))
-        : fileTree(dir: '../../dialog-engine/build/libs', include: 'dialog-engine-*.jar', exclude: '*-sources.jar')
+// Dialog Engine, compileOnly: the server has it, and Punishments runs without
+// it (commands only, no panel). The jar to compile against is the first of:
+//   1. DIALOG_ENGINE_JAR, the path to any Dialog Engine jar;
+//   2. a Dialog Engine built beside this project, in
+//      ../../dialog-engine/build/libs (-PdialogEngineDir=<dir> looks somewhere
+//      else): the newest version there, as every build leaves its jar behind;
+//   3. the released Dialog Engine the panel needs, downloaded once from
+//      cdn.resourcepack.ai into .gradle/dialog-engine/ and checked against its
+//      SHA-256.
+// The released one is DIALOG_ENGINE_VERSION, the oldest the panel runs on:
+// compiling against it keeps a newer call out.
+def DIALOG_ENGINE_VERSION = '0.4.3'
+def DIALOG_ENGINE_SHA256 = 'd0d23858ced159aeda3fc44806362bf9f8d0c5a1a952db555485c06125172b88'
+def DIALOG_ENGINE_URL = "https://cdn.resourcepack.ai/DialogEngine-${DIALOG_ENGINE_VERSION}.jar"
+
+def dialogEngineEnv = System.getenv('DIALOG_ENGINE_JAR')
+def dialogEngineDir = file(findProperty('dialogEngineDir') ?: '../../dialog-engine/build/libs')
+// dialog-engine-<version>.jar -> [major, minor, patch...]; null for anything else (-sources and the like).
+def dialogEngineVersion = { File f ->
+    def m = f.name =~ /^dialog-engine-(\d+(?:\.\d+)*)\.jar$/
+    m.matches() ? m.group(1).tokenize('.').collect { it as int } : null
+}
+def newerFirst = { File a, File b ->
+    def x = dialogEngineVersion(a)
+    def y = dialogEngineVersion(b)
+    for (int i = 0; i < Math.max(x.size(), y.size()); i++) {
+        int c = (i < x.size() ? x[i] : 0) <=> (i < y.size() ? y[i] : 0)
+        if (c != 0) return -c
+    }
+    return 0
+}
+def dialogEngineBuilt = ((dialogEngineDir.listFiles() ?: []) as List<File>)
+        .findAll { dialogEngineVersion(it) != null }.sort(newerFirst).take(1)
+def dialogEngineDownloaded = file(".gradle/dialog-engine/DialogEngine-${DIALOG_ENGINE_VERSION}.jar")
+
+def downloadDialogEngine = tasks.register('downloadDialogEngine') {
+    description = "Downloads Dialog Engine ${DIALOG_ENGINE_VERSION} to compile against."
+    outputs.file(dialogEngineDownloaded)
+    onlyIf { !dialogEngineDownloaded.isFile() }
+    doLast {
+        if (gradle.startParameter.offline) {
+            throw new GradleException("Dialog Engine ${DIALOG_ENGINE_VERSION} is not downloaded yet and Gradle is offline. " +
+                    "Run once online, or set DIALOG_ENGINE_JAR to a Dialog Engine jar.")
+        }
+        def part = file("${dialogEngineDownloaded}.part")
+        part.parentFile.mkdirs()
+        logger.lifecycle("Downloading ${DIALOG_ENGINE_URL}")
+        URI.create(DIALOG_ENGINE_URL).toURL().withInputStream { input -> part.withOutputStream { it << input } }
+        def sha = java.security.MessageDigest.getInstance('SHA-256').digest(part.bytes).encodeHex().toString()
+        if (sha != DIALOG_ENGINE_SHA256) {
+            part.delete()
+            throw new GradleException("${DIALOG_ENGINE_URL} has SHA-256 ${sha}, expected ${DIALOG_ENGINE_SHA256}. Not using it.")
+        }
+        java.nio.file.Files.move(part.toPath(), dialogEngineDownloaded.toPath(),
+                java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+    }
+}
+
+def dialogEngineJar = dialogEngineEnv
+        ? files(dialogEngineEnv)
+        : !dialogEngineBuilt.isEmpty()
+            ? files(dialogEngineBuilt)
+            : files(dialogEngineDownloaded).builtBy(downloadDialogEngine)
 
 dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.21.8-R0.1-SNAPSHOT'

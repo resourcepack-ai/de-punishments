@@ -1,7 +1,8 @@
 rootProject.name = 'punishments'
 
-// ai.resourcepack:common, the small library our plugins shade in, built from
-// source when this repository's copy is beside it.
+// ai.resourcepack:common, the small library our plugins shade in: built from
+// source when a checkout of it is two folders up, and from
+// repo.resourcepack.ai otherwise.
 if (file('../../plugin-common').isDirectory()) {
     includeBuild('../../plugin-common')
 }

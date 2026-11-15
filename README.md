@@ -89,12 +89,13 @@ its controls set the settings `punish_reason`, `punish_length` and
 ## Building
 
 ```bash
-cd ../../dialog-engine && ./gradlew build   # the jar this compiles against
-cd ../de-addons/punishments && ./gradlew build
+./gradlew build
 ```
 
-`build/libs/Punishments-<version>.jar`. `DIALOG_ENGINE_JAR` points the build
-at another Dialog Engine jar.
+The jar is `build/libs/Punishments-<version>.jar`. It needs Java 21. The build
+compiles against [Dialog Engine](https://github.com/resourcepack-ai/dialog-engine),
+which it downloads from `cdn.resourcepack.ai` the first time and checks against
+a SHA-256. Set `DIALOG_ENGINE_JAR` to compile against a jar of your own.
 
 ## For developers
 
@@ -118,3 +119,13 @@ length is milliseconds, `Punishment.NEVER` for ever, `0` the configured default.
 `PunishmentPreEvent` (cancellable, reason changeable), `PunishmentEvent`
 (done) and `PunishmentRevokeEvent`, all on the main thread, in
 `ai.resourcepack.punishments.api.event`.
+
+## Support
+
+Questions and bug reports: [our Discord](https://resourcepack.ai/discord), or
+an issue here. The full guide is at
+[resourcepack.ai/docs/punishments](https://resourcepack.ai/docs/punishments).
+
+## Licence
+
+GPL-3.0. See [LICENSE](LICENSE).
